@@ -3,7 +3,6 @@ name: Git
 description: Git workflow agent — creates branches for features/Jira tickets, stages files, writes conventional commits, and prepares PR descriptions
 argument-hint: Provide a Jira ticket or feature name to branch (e.g. "PROJ-123 feedback form"), or say "commit" to finalise work in progress
 tools: [execute, read, agent, search]
-model: GPT-4o (copilot)
 user-invocable: true
 handoffs:
   - label: "🔍 Review before commit"

@@ -3,7 +3,6 @@ name: Backend
 description: Java/Spring Boot expert — implements APIs, services, repositories, and DB migrations for a feature
 argument-hint: Describe what to build, optionally pass --existing to analyse before coding (e.g. "implement POST /api/feedback" or "implement user profile update --existing")
 tools: [execute/runInTerminal, execute/runTests, read/readFile, search/textSearch, search/fileSearch, search/listDirectory, edit/createFile, edit/editFiles]
-model: GPT-4o (copilot)
 user-invocable: false
 handoffs:
   - label: "🎨 Hand off to Frontend"

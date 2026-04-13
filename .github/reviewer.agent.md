@@ -3,7 +3,6 @@ name: Reviewer
 description: Security and quality auditor for Java/Spring and React — checks for bugs, vulnerabilities, and standards violations
 argument-hint: Pass the files or Handover blocks to review (e.g. "review backend handover" or "review FeedbackController.java for security")
 tools: [search/textSearch, search/readFile]
-model: Claude Sonnet 4.6
 <!-- user-invocable: false -->
 user-invocable: true
 handoffs:

@@ -4,7 +4,6 @@ description: Explore codebase and understand code - quick mapping or deep analys
 argument-hint: What to explore? Add --deep for risks/smells (e.g., "map order package" or "analyze OrderService --deep")
 
 tools: ['search/textSearch', 'web/fetch', 'read/readFile']
-model: Claude Sonnet 4.6 (copilot)
 handoffs:
   - label: Save Findings
     agent: Documentation

@@ -3,7 +3,6 @@ name: Frontend
 description: React/TypeScript expert — builds UI components and connects them to Java APIs
 argument-hint: Describe what to build, optionally pass --contract to include the API endpoint details (e.g. "build feedback form --contract POST /api/feedback {message, rating}")
 tools: [execute/runInTerminal, execute/runTests, read/readFile, search/textSearch, search/fileSearch, search/listDirectory, edit/createFile, edit/editFiles, fetch]
-model: GPT-4o (copilot)
 user-invocable: true
 handoffs:
   - label: "🔍 Send to Reviewer"

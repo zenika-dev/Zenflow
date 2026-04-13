@@ -12,8 +12,8 @@ This workflow delivers a complete feature end-to-end, from branch creation to a 
 
 | Step | Agent | Responsibility |
 |------|-------|----------------|
-| 0 | Git | Creates and checks out a feature branch |
-| 1 | Orchestrator | Produces the Feature Plan |
+| 0 | Orchestrator | Organises the flow |
+| 1 | Git | Creates and checks out a feature branch |
 | 2 | Discovery | Explores the codebase and maps relevant files |
 | 3 | Backend | Implements API endpoints and business logic |
 | 4 | Frontend | Builds UI components and wires up API calls |

@@ -1,9 +1,9 @@
 ---
 name: Orchestrator
-description: Orchestrates full-stack feature delivery — calls Backend, Frontend, Docs, Reviewer, Git, Playwright as sub-agents
+description: Orchestrates full-stack feature delivery — calls Backend, Frontend, Docs, Reviewer, Git as sub-agents
 argument-hint: Describe the feature to build (e.g. "Build a user feedback form with POST /api/feedback endpoint")
 tools: [agent, read/readFile, agent/runSubagent, agent]
-agents: [Backend, Frontend, Documentation, Reviewer, Git, Playwright]
+agents: [Backend, Frontend, Documentation, Reviewer, Git]
 user-invocable: true
 handoffs:
   - label: "🔁 Retry with Plan only"
@@ -152,40 +152,13 @@ Check for: security issues, Java/Spring best practices, React best practices, ac
 
 **Wait** for Reviewer to return.
 **Check overall status**:
-- `✅ APPROVED` → proceed to Step 6 (Playwright)
-- `⚠️ APPROVED WITH NOTES` → inform user, proceed to Step 6 (Playwright)
-- `❌ BLOCKED` → show critical issues to user. **Do NOT proceed to Playwright or Git.**
+- `✅ APPROVED` → proceed to Step 6 (Documentation)
+- `⚠️ APPROVED WITH NOTES` → inform user, proceed to Step 6 (Documentation)
+- `❌ BLOCKED` → show critical issues to user. **Do NOT proceed to Git.**
 
 ---
 
-### STEP 6 — Call Playwright sub-agent (E2E Testing)
-
-Reviewer has approved — now validate the feature works end-to-end in the running browser before committing.
-
-```
-Prompt to Playwright:
-"Run E2E tests for [feature name].
-
-Feature summary:
-[paste 1-paragraph plain English description from Feature Plan]
-
-User flow to test:
-[describe the steps a user would take — e.g. navigate to Pet Detail, fill booking form, submit, verify confirmation]
-
-Backend API: [list new endpoints from Backend Handover]
-Frontend components: [list new components from Frontend Handover]
-
-Explore the running app, validate the full user flow, then generate a .spec.ts test file."
-```
-
-**Wait** for Playwright to return.
-**Check**: Did all steps in the user flow pass? Do screenshots show the correct UI state?
-- `✅ All tests pass` → proceed to Step 7 (Documentation)
-- `❌ Tests fail` → surface failures to user. Route back to **@Backend** or **@Frontend** to fix. **Do NOT proceed to Git.**
-
----
-
-### STEP 7 — Call Documentation sub-agent
+### STEP 6 — Call Documentation sub-agent
 
 Use the `agent` tool to call **@Documentation** with:
 
@@ -201,9 +174,9 @@ Update: README API section, JavaDoc on changed methods, TSDoc on new components.
 
 ---
 
-### STEP 8 — Call Git sub-agent
+### STEP 7 — Call Git sub-agent
 
-**Only perform this step if a new branch was created in STEP 0.** If the user chose not to create a branch, skip this step entirely and go straight to STEP 9.
+**Only perform this step if a new branch was created in STEP 0.** If the user chose not to create a branch, skip this step entirely and go straight to STEP 8.
 
 All code is reviewed, E2E tested, and documented. Now commit.
 
@@ -222,7 +195,7 @@ Write a conventional commit message and a PR description."
 
 ---
 
-### STEP 9 — Final Summary
+### STEP 8 — Final Summary
 
 Present this to the user:
 
@@ -234,7 +207,6 @@ Present this to the user:
 | Backend     | @Backend     | ✅ Tests passing         |
 | Frontend    | @Frontend    | ✅ Tests passing         |
 | Review      | @Reviewer    | ✅ Approved              |
-| E2E Tests   | @Playwright  | ✅ All flows passing     |
 | Docs        | @Docs        | ✅ Updated               |
 | Git         | @Git         | ✅ Commit ready          |
 

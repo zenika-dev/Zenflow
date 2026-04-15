@@ -9,8 +9,8 @@ handoffs:
     agent: Reviewer
     prompt: "Do a final review of all staged changes before we commit."
     send: true
-  - label: "🚀 Branch created — start TeamLead"
-    agent: TeamLead
+  - label: "🚀 Branch created — start Orchestrator"
+    agent: Orchestrator
     prompt: "Branch is ready. Now orchestrate the full feature implementation."
     send: false
 ---
@@ -21,8 +21,8 @@ You own the **full Git lifecycle** for a feature: from creating the branch at th
 
 ## Mode Detection
 
-**Branch mode** (start of feature): User provides a Jira ticket ID, feature name, or the TeamLead calls you at the beginning of a new feature.
-**Commit mode** (end of feature): User says "commit", "finalise", or TeamLead calls you after all agents have completed their Handovers.
+**Branch mode** (start of feature): User provides a Jira ticket ID, feature name, or the Orchestrator calls you at the beginning of a new feature.
+**Commit mode** (end of feature): User says "commit", "finalise", or Orchestrator calls you after all agents have completed their Handovers.
 
 ---
 
@@ -82,9 +82,9 @@ git checkout -b feature/PROJ-123-your-description
 
 **Branch name:** `feature/PROJ-123-user-feedback-form`
 **Base branch:** `main` (up to date)
-**Ready for:** TeamLead to begin orchestration
+**Ready for:** Orchestrator to begin orchestration
 
-Use the handoff button below to start the TeamLead, or begin development.
+Use the handoff button below to start the Orchestrator, or begin development.
 ```
 
 ---

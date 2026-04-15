@@ -2,20 +2,23 @@
 
 ```mermaid
 flowchart TD
-    START([Feature Request]) --> JIRA{Jira ID\nprovided?}
-    JIRA -- No --> ASK[Ask user for Jira ID]
-    ASK --> JIRA
-    JIRA -- Yes --> GIT_BRANCH[Git: Create Feature Branch]
-    GIT_BRANCH --> PLAN[Create Feature Plan]
+    START([Feature Request]) --> BRANCH{Create new\nbranch?}
+    BRANCH -- No --> BE_PLAN
+    BRANCH -- Yes --> GIT_BRANCH[Git: Create Feature Branch]
+    GIT_BRANCH --> BE_PLAN[Backend: Produce Feature Plan]
 
-    PLAN --> DISCOVERY[Discovery: Map Codebase]
-    DISCOVERY --> UPDATE_PLAN[Update Feature Plan\nwith Discovery findings]
+    BE_PLAN --> BE_PLAN_OK{User\napproves plan?}
+    BE_PLAN_OK -- No, revise --> BE_PLAN
+    BE_PLAN_OK -- Yes --> BACKEND[Backend: Implement API]
 
-    UPDATE_PLAN --> BACKEND[Backend: Implement API]
     BACKEND --> BE_OK{Tests\npassing?}
     BE_OK -- No, retry --> BACKEND
     BE_OK -- Failed twice --> STOP1([Stop — Inform User])
-    BE_OK -- Yes --> FRONTEND[Frontend: Build UI]
+    BE_OK -- Yes --> FE_PLAN[Frontend: Produce Frontend Plan]
+
+    FE_PLAN --> FE_PLAN_OK{User\napproves plan?}
+    FE_PLAN_OK -- No, revise --> FE_PLAN
+    FE_PLAN_OK -- Yes --> FRONTEND[Frontend: Build UI]
 
     FRONTEND --> FE_OK{Tests\npassing?}
     FE_OK -- No, retry --> FRONTEND
@@ -25,14 +28,8 @@ flowchart TD
     REVIEWER --> REVIEW_STATUS{Review\nOutcome}
     REVIEW_STATUS -- ❌ BLOCKED --> STOP3([Stop — Surface Issues to User])
     REVIEW_STATUS -- ⚠️ APPROVED WITH NOTES --> NOTIFY[Notify User of Warnings]
-    REVIEW_STATUS -- ✅ APPROVED --> PLAYWRIGHT
-    NOTIFY --> PLAYWRIGHT[Playwright: E2E Tests]
-
-    PLAYWRIGHT --> E2E_OK{All flows\npassing?}
-    E2E_OK -- ❌ Failures --> ROUTE{Route\nfailures to}
-    ROUTE -- Backend issue --> BACKEND
-    ROUTE -- Frontend issue --> FRONTEND
-    E2E_OK -- ✅ Pass --> DOCS[Documentation: Update README/JavaDoc/TSDoc]
+    REVIEW_STATUS -- ✅ APPROVED --> DOCS
+    NOTIFY --> DOCS[Documentation: Update README/JavaDoc/TSDoc]
 
     DOCS --> GIT_COMMIT[Git: Stage & Commit]
     GIT_COMMIT --> SUMMARY([Final Summary to User])

@@ -12,15 +12,14 @@ This workflow delivers a complete feature end-to-end, from branch creation to a 
 
 | Step | Agent | Responsibility |
 |------|-------|----------------|
-| 0 | Orchestrator | Organises the flow |
-| 1 | Git | Creates and checks out a feature branch |
-| 2 | Discovery | Explores the codebase and maps relevant files |
-| 3 | Backend | Implements API endpoints and business logic |
+| 0 | Git | Creates and checks out a feature branch |
+| 1 | Backend | Produces feature plan (saved to `docs/plans/`) for user approval |
+| 2 | Backend | Implements API endpoints and business logic |
+| 3 | Frontend | Produces frontend plan for user approval |
 | 4 | Frontend | Builds UI components and wires up API calls |
 | 5 | Reviewer | Performs security and quality review |
-| 6 | Playwright | Generates E2E tests |
-| 7 | Documentation | Updates docs and changelogs |
-| 8 | Git | Commits changes and opens a pull request |
+| 6 | Documentation | Updates README, JavaDoc, and TSDoc |
+| 7 | Git | Stages changes, writes a conventional commit, and prepares a PR description |
 
 For a detailed flow diagram, see [docs/diagrams/fullstack-newfeature.md](docs/diagrams/fullstack-newfeature.md).
 

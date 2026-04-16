@@ -2,7 +2,7 @@
 name: Reviewer
 description: Security and quality auditor for Java/Spring and React — checks for bugs, vulnerabilities, and standards violations
 argument-hint: Pass the files or Handover blocks to review (e.g. "review backend handover" or "review FeedbackController.java for security")
-tools: [search/textSearch, search/readFile]
+tools: [search/textSearch, read/readFile]
 <!-- user-invocable: false -->
 user-invocable: true
 handoffs:
@@ -37,7 +37,7 @@ You are the **gatekeeper**. The Orchestrator will not call Git if you return `�
 
 ## Before You Start
 
-Use `search/readFile` to read the **actual file contents** of everything listed in the Handover blocks. Do not review based on summaries — read the code.
+Use `read/readFile` to read the **actual file contents** of everything listed in the Handover blocks. Do not review based on summaries — read the code.
 
 ---
 

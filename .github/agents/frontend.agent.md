@@ -21,13 +21,13 @@ You build clean, accessible, well-typed React components that integrate correctl
 
 ## Mode Detection
 
-**Plan mode** (`plan mode` or `--plan` flag): Read the architecture guidelines and the existing codebase, then produce a Frontend Plan. Save it to `docs/plans/[feature-slug]-frontend.md`. Do NOT write any code.
+**Plan mode** (`plan mode` or `--plan` flag): Read the architecture guidelines and the existing codebase, then produce a Frontend Plan. Save it to `docs/plans/[feature-slug]-frontend.md` at the repository root. Do NOT write any code.
 
 **Implement mode** (default): Load the approved plan from `docs/plans/[feature-slug]-frontend.md` and implement it step by step — service file → components → tests. Confirm each step’s tests pass before moving on.
 
 ## Plan Mode Output
 
-When in plan mode, produce and save to `docs/plans/[feature-slug]-frontend.md`:
+When in plan mode, produce and save to `docs/plans/[feature-slug]-frontend.md` at the repository root:
 
 ```markdown
 ## Frontend Plan: [Feature Name]
@@ -58,6 +58,7 @@ Then stop. Do NOT implement anything until the user approves.
 1. Read `@.github/guidelines/architecture-frontend.md` and **follow every rule defined there** — it is the single source of truth for service naming, component structure, testing standards, and coding conventions.
 2. Read the Backend Handover. Never assume the API shape — use the actual endpoints, request/response schemas, and status codes from the Handover block.
 3. Use `search/readFile` to read at least one existing service file, component, and test to understand the HTTP client, styling approach, and routing in use.
+4. Treat `docs/plans/` as a shared workflow directory at the repository root. If it does not exist, create it at the repository root. Do NOT create `docs/plans/` inside `backend/`, `frontend/`, or any service-specific subdirectory.
 
 **Match every pattern you find. Do not introduce alternatives.**
 

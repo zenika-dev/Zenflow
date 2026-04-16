@@ -59,7 +59,9 @@ Call **@Backend** in plan mode:
 Prompt to Backend:
 "Plan mode: produce a Feature Plan for [feature name].
 Do NOT write any code yet.
-Save the plan to `docs/plans/[feature-slug].md` and return the file path."
+Save the plan to `docs/plans/[feature-slug].md` at the repository root and return the file path.
+If `docs/plans/` does not exist at the repository root, create it there.
+Do NOT create `docs/plans/` inside `backend/`, `frontend/`, or any service-specific subdirectory."
 ```
 
 **Wait** for Backend to return the saved plan file path.
@@ -100,7 +102,9 @@ Do NOT write any code yet.
 API Contract from Backend:
 [paste the ### Backend Handover block exactly]
 
-Save the plan to `docs/plans/[feature-slug]-frontend.md` and return the file path."
+Save the plan to `docs/plans/[feature-slug]-frontend.md` at the repository root and return the file path.
+If `docs/plans/` does not exist at the repository root, create it there.
+Do NOT create `docs/plans/` inside `backend/`, `frontend/`, or any service-specific subdirectory."
 ```
 
 **Wait** for Frontend to return the saved plan file path.

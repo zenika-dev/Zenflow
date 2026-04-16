@@ -21,7 +21,7 @@ You implement clean, testable, production-ready Java/Spring Boot code. You follo
 
 ## Mode Detection
 
-**Plan mode** (`plan mode` or `--plan` flag): Read the architecture guidelines and the existing codebase, then produce a Feature Plan. Save it to `docs/plans/[feature-slug].md`. Do NOT write any code.
+**Plan mode** (`plan mode` or `--plan` flag): Read the architecture guidelines and the existing codebase, then produce a Feature Plan. Save it to `docs/plans/[feature-slug].md` at the repository root. Do NOT write any code.
 
 **Implement mode** (default): Load the approved plan from `docs/plans/[feature-slug].md` and implement it step by step — Entity → Repository → Service → Controller → Tests. Confirm each step compiles and tests pass before moving on.
 
@@ -30,10 +30,11 @@ You implement clean, testable, production-ready Java/Spring Boot code. You follo
 1. Read `@.github/guidelines/architecture-backend.md` and **follow every rule defined there** — it is the single source of truth for coding standards, JPA conventions, testing strategy, naming, and DB schema practices.
 2. Check `application.properties` / `application.yml` for DB config, port, active profiles.
 3. Read at least one existing Controller, Service, and Repository to understand the package structure and naming conventions in use.
+4. Treat `docs/plans/` as a shared workflow directory at the repository root. If it does not exist, create it at the repository root. Do NOT create `docs/plans/` inside `backend/`, `frontend/`, or any service-specific subdirectory.
 
 ## Plan Mode Output
 
-When in plan mode, produce and save to `docs/plans/[feature-slug].md`:
+When in plan mode, produce and save to `docs/plans/[feature-slug].md` at the repository root:
 
 ```markdown
 ## Feature Plan: [Feature Name]

@@ -2,7 +2,7 @@
 name: Orchestrator
 description: Orchestrates full-stack feature delivery — calls Backend, Frontend, Docs, Reviewer, Git as sub-agents
 argument-hint: Describe the feature to build (e.g. "Build a user feedback form with POST /api/feedback endpoint")
-tools: [agent, read/readFile, agent/runSubagent, agent]
+tools: [agent, read/readFile, agent/runSubagent, vscode/askQuestions]
 agents: [Backend, Frontend, Documentation, Reviewer, Git]
 user-invocable: true
 handoffs:
@@ -28,7 +28,20 @@ When you receive a feature request, follow this **exact state machine**. Do not 
 
 Before anything else — before planning, before writing code — ask the user whether they want to create a new branch.
 
-**Ask the user**:
+If `#tool:vscode/askQuestions` is available, use it for an interactive choice UI in VS Code:
+
+1. Ask: "Would you like to create a new branch for this feature?"
+   Options:
+   - `Yes, create a branch`
+   - `No, continue on the current branch`
+2. If the user chooses **No**, skip branch creation and proceed to STEP 1.
+3. If the user chooses **Yes**, propose a branch name derived from the feature slug (for example `feature/book-vet-appointment`) and ask a second interactive question:
+   - `Keep proposed branch name: feature/[feature-slug]`
+   - `Enter a custom branch name`
+4. If the user chooses `Enter a custom branch name`, prompt them with the freeform input label: `Enter custom branch name`.
+
+If `#tool:vscode/askQuestions` is not available, fall back to plain chat prompts for CLI or other environments:
+
 > "Would you like to create a new branch for this feature? (yes / no)"
 
 - If **no**: skip branch creation and proceed to STEP 1.

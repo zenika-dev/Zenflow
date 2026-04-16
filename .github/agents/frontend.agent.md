@@ -21,13 +21,13 @@ You build clean, accessible, well-typed React components that integrate correctl
 
 ## Mode Detection
 
-**Plan mode** (`plan mode` or `--plan` flag): Read the architecture guidelines and the existing codebase, then produce a Frontend Plan. Save it to `docs/plans/[feature-slug]-frontend.md`. Do NOT write any code.
+**Plan mode** (`plan mode` or `--plan` flag): Read the resolved guideline path and the existing codebase, then produce a Frontend Plan. Save it to the resolved frontend plan path provided by the Orchestrator. Do NOT write any code.
 
-**Implement mode** (default): Load the approved plan from `docs/plans/[feature-slug]-frontend.md` and implement it step by step — service file → components → tests. Confirm each step’s tests pass before moving on.
+**Implement mode** (default): Load the approved plan from the resolved frontend plan path provided by the Orchestrator and implement it step by step — service file → components → tests. Confirm each step’s tests pass before moving on.
 
 ## Plan Mode Output
 
-When in plan mode, produce and save to `docs/plans/[feature-slug]-frontend.md`:
+When in plan mode, produce and save to the resolved frontend plan path only:
 
 ```markdown
 ## Frontend Plan: [Feature Name]
@@ -51,13 +51,22 @@ When in plan mode, produce and save to `docs/plans/[feature-slug]-frontend.md`:
 - [List anything unclear]
 ```
 
-Then stop. Do NOT implement anything until the user approves.
+Return the exact saved absolute file path, then stop. Do NOT implement anything until the user approves.
 
 ## Before You Write Any Code (both modes)
 
-1. Read `@.github/guidelines/architecture-frontend.md` and **follow every rule defined there** — it is the single source of truth for service naming, component structure, testing standards, and coding conventions.
-2. Read the Backend Handover. Never assume the API shape — use the actual endpoints, request/response schemas, and status codes from the Handover block.
-3. Use `search/readFile` to read at least one existing service file, component, and test to understand the HTTP client, styling approach, and routing in use.
+1. Expect the Orchestrator to pass you:
+   - resolved frontend guideline path
+   - resolved frontend plan path
+   - resolved plans directory
+2. Treat those resolved paths as absolute repository-root paths. Never reinterpret them relative to the current file, the current subdirectory, or your active working directory.
+3. The only valid plan location for this workflow is the configured repository-root plans directory passed by the Orchestrator.
+4. Before saving a plan, verify that the resolved frontend plan path is inside the resolved plans directory and that the plans directory is rooted at the repository root.
+5. If the resolved plan path points anywhere else, stop and report the mismatch. Do not create a fallback `plans` directory and do not save a plan in a nested module directory.
+6. Read the resolved frontend guideline path and **follow every rule defined there** — it is the single source of truth for service naming, component structure, testing standards, and coding conventions.
+7. If a required resolved path is missing or the target file does not exist when it should, stop and report it. Do not guess fallback paths.
+8. Read the Backend Handover. Never assume the API shape — use the actual endpoints, request/response schemas, and status codes from the Handover block.
+9. Use `search/readFile` to read at least one existing service file, component, and test to understand the HTTP client, styling approach, and routing in use.
 
 **Match every pattern you find. Do not introduce alternatives.**
 

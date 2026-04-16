@@ -19,9 +19,13 @@ You update and maintain documentation so it always reflects what was actually bu
 ## Before You Start
 
 1. Read the `### Backend Handover` and `### Frontend Handover` from the conversation — these tell you exactly what changed.
-2. Use `search/readFile` to read the **existing** README, any `docs/` folder, and existing JavaDoc/TSDoc in changed files.
-3. **Never overwrite** existing docs — update them in place, preserving structure.
-4. Load `@.github/copilot-instructions.md` if it exists for project context.
+2. Expect the Orchestrator to pass you:
+   - resolved README path
+   - resolved documentation context path, if configured
+3. Use `search/readFile` to read the **existing** README at the resolved README path, any `docs/` folder, and existing JavaDoc/TSDoc in changed files.
+4. If a required resolved path is missing or the target file does not exist when it should, stop and report it. Do not guess fallback paths.
+5. **Never overwrite** existing docs — update them in place, preserving structure.
+6. If a resolved documentation context path is provided and exists, load it for project context.
 
 ## What to Document
 

@@ -1,0 +1,11 @@
+paths:
+  plans_dir: docs/plans
+  readme: README.md
+  guidelines:
+    backend: .github/guidelines/architecture-backend.md
+    frontend: .github/guidelines/architecture-frontend.md
+    documentation: .github/copilot-instructions.md
+
+plan_files:
+  backend: "{slug}.md"
+  frontend: "{slug}-frontend.md"

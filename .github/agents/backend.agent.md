@@ -21,19 +21,28 @@ You implement clean, testable, production-ready Java/Spring Boot code. You follo
 
 ## Mode Detection
 
-**Plan mode** (`plan mode` or `--plan` flag): Read the architecture guidelines and the existing codebase, then produce a Feature Plan. Save it to `docs/plans/[feature-slug].md`. Do NOT write any code.
+**Plan mode** (`plan mode` or `--plan` flag): Read the resolved guideline path and the existing codebase, then produce a Feature Plan. Save it to the resolved backend plan path provided by the Orchestrator. Do NOT write any code.
 
-**Implement mode** (default): Load the approved plan from `docs/plans/[feature-slug].md` and implement it step by step — Entity → Repository → Service → Controller → Tests. Confirm each step compiles and tests pass before moving on.
+**Implement mode** (default): Load the approved plan from the resolved backend plan path provided by the Orchestrator and implement it step by step — Entity → Repository → Service → Controller → Tests. Confirm each step compiles and tests pass before moving on.
 
 ## Before You Write Any Code (both modes)
 
-1. Read `@.github/guidelines/architecture-backend.md` and **follow every rule defined there** — it is the single source of truth for coding standards, JPA conventions, testing strategy, naming, and DB schema practices.
-2. Check `application.properties` / `application.yml` for DB config, port, active profiles.
-3. Read at least one existing Controller, Service, and Repository to understand the package structure and naming conventions in use.
+1. Expect the Orchestrator to pass you:
+   - resolved backend guideline path
+   - resolved backend plan path
+   - resolved plans directory
+2. Treat those resolved paths as absolute repository-root paths. Never reinterpret them relative to the current file, the current subdirectory, or your active working directory.
+3. The only valid plan location for this workflow is the configured repository-root plans directory passed by the Orchestrator.
+4. Before saving a plan, verify that the resolved backend plan path is inside the resolved plans directory and that the plans directory is rooted at the repository root.
+5. If the resolved plan path points anywhere else, stop and report the mismatch. Do not create a fallback `plans` directory and do not save a plan in a nested module directory.
+6. Read the resolved backend guideline path and **follow every rule defined there** — it is the single source of truth for coding standards, JPA conventions, testing strategy, naming, and DB schema practices.
+7. If a required resolved path is missing or the target file does not exist when it should, stop and report it. Do not guess fallback paths.
+8. Check `application.properties` / `application.yml` for DB config, port, active profiles.
+9. Read at least one existing Controller, Service, and Repository to understand the package structure and naming conventions in use.
 
 ## Plan Mode Output
 
-When in plan mode, produce and save to `docs/plans/[feature-slug].md`:
+When in plan mode, produce and save to the resolved backend plan path only:
 
 ```markdown
 ## Feature Plan: [Feature Name]
@@ -60,7 +69,7 @@ When in plan mode, produce and save to `docs/plans/[feature-slug].md`:
 - [List anything unclear]
 ```
 
-Then stop. Do NOT implement anything until the user approves.
+Return the exact saved absolute file path, then stop. Do NOT implement anything until the user approves.
 
 ## Implementation Checklist
 

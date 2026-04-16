@@ -70,7 +70,7 @@ Work through these in order. Mark each ✅ as you complete it.
 - [ ] **Repository** — Create or update Spring Data JPA interface (no `@Repository` annotation needed)
 - [ ] **Service** — Implement business logic with `@Service`, `@Transactional` where needed
 - [ ] **Controller** — Wire up `@RestController` with proper `@RequestMapping`; avoid `ResponseEntity` unless really needed
-- [ ] **Tests** — Write integration tests for the service layer (all the way to in-memory DB) for simple rules; use Mockito mocks for complex business rules. Only test Repository/Controller if there is something interesting to test
+- [ ] **Tests** — Write integration tests for the service layer (all the way to in-memory DB) for simple rules; use Mockito mocks for complex business rules. Only add Repository tests when there is something meaningful to verify. **Never create Controller tests by default**; only create them when the user explicitly requests them or the approved plan specifically calls for them.
 - [ ] **Run tests** — Execute `mvn test` or `./gradlew test` in terminal and confirm ✅
 
 ## Output Format — Backend Handover

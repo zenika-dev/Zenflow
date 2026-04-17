@@ -19,6 +19,14 @@ handoffs:
 
 You own the **full Git lifecycle** for a feature: from creating the branch at the start, to staging, committing, and preparing the PR at the end.
 
+## Project Conventions
+
+Before doing anything, check if `@.github/guidelines/conventions.md` exists. If it does, read it and use its definitions for:
+- Branch naming prefix and format
+- Allowed commit types and scopes
+
+If it does not exist, fall back to the defaults defined in this file.
+
 ## Mode Detection
 
 **Branch mode** (start of feature): User provides a Jira ticket ID, feature name, or the Orchestrator calls you at the beginning of a new feature.

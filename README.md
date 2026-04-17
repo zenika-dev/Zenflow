@@ -27,12 +27,17 @@ To get the best results from this workflow, the target project should provide a 
 
 ##### Required Guidance Files
 
-The current workflow expects these files to exist in the target repository:
+For a fully working orchestration flow, you must add these files under `.github/guidelines/` before running agents:
 
-- `.github/guidelines/architecture-backend.md`
-- `.github/guidelines/architecture-frontend.md`
+- `architecture-backend.md`
+- `architecture-frontend.md`
+- `review-backend.md`
+- `review-frontend.md`
 
-These files act as the main source of truth for how the Backend and Frontend agents should work inside your project.
+Setup instructions are centralized in the Template Library section below.
+
+The architecture files are the main source of truth for Backend and Frontend implementation behavior.
+The review files are the source of truth for Reviewer checklists.
 
 `architecture-backend.md` should ideally describe things like:
 
@@ -55,6 +60,12 @@ These files act as the main source of truth for how the Backend and Frontend age
 
 The more explicit these files are, the more consistently the agents can follow your standards.
 
+For Git branch and commit conventions, you can also provide:
+
+- `.github/guidelines/conventions.md`
+
+If present, the Git agent will use it for branch naming and commit formatting.
+
 ##### Recommended Supporting Files
 
 - `README.md`
@@ -65,6 +76,16 @@ The more explicit these files are, the more consistently the agents can follow y
   The Backend and Frontend agents save planning artifacts here for user review before implementation. Creating this directory up front helps keep plan outputs consistent.
 
 For a detailed flow diagram, see [docs/diagrams/fullstack-newfeature.md](docs/diagrams/fullstack-newfeature.md).
+
+### Template Library
+
+Zenflow includes a stack template library under `templates/`.
+
+The templates exist to keep core agent behavior stable while moving stack-specific architecture and review conventions into reusable files.
+
+Canonical setup flow (mandatory): copy stack templates from `templates/guidelines/` into `.github/guidelines/`, rename them to `architecture-backend.md`, `architecture-frontend.md`, `review-backend.md`, and `review-frontend.md`, then customize them for your project. Add `conventions.md` if you want Git branch and commit rules enforced.
+
+See [templates/README.md](templates/README.md) for structure and setup steps.
 
 ---
 

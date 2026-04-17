@@ -85,8 +85,15 @@ Required output: End your response with a ### Backend Handover block."
 ```
 
 **Wait** for Backend to return.
-**Check**: Did it include a `### Backend Handover` block? Did tests pass?
-**If failed**: Retry once with the error message. If still failing, stop and inform the user.
+**Check**:
+- Did it include a `### Backend Handover` block?
+- Did it include a `Test Result` section with `Status`, `Command`, and `Notes`?
+- Is `Test Result Status` explicitly `PASS`?
+
+If any check fails, retry once with a strict correction prompt:
+> "Your output is incomplete. Return a full `### Backend Handover` including `Test Result` with Status/Command/Notes and run tests before finalizing."
+
+If still failing after one retry, stop and inform the user.
 
 ---
 
@@ -132,8 +139,15 @@ Required output: End your response with a ### Frontend Handover block."
 ```
 
 **Wait** for Frontend to return.
-**Check**: Did it include a `### Frontend Handover` block? Did tests pass?
-**If failed**: Retry once. If still failing, stop and inform the user.
+**Check**:
+- Did it include a `### Frontend Handover` block?
+- Did it include a `Test Result` section with `Status`, `Command`, and `Notes`?
+- Is `Test Result Status` explicitly `PASS`?
+
+If any check fails, retry once with a strict correction prompt:
+> "Your output is incomplete. Return a full `### Frontend Handover` including `Test Result` with Status/Command/Notes and run tests before finalizing."
+
+If still failing after one retry, stop and inform the user.
 
 ---
 
@@ -206,13 +220,13 @@ Present this to the user:
 ```
 ## ✅ Feature Delivery: [Feature Name]
 
-| Step        | Agent        | Status                   |
-|-------------|--------------|--------------------------|
-| Backend     | @Backend     | ✅ Tests passing         |
-| Frontend    | @Frontend    | ✅ Tests passing         |
-| Review      | @Reviewer    | ✅ Approved              |
-| Docs        | @Docs        | ✅ Updated               |
-| Git         | @Git         | ✅ Commit ready          |
+| Step        | Agent        | Status            | Test Summary                  |
+|-------------|--------------|-------------------|-------------------------------|
+| Backend     | @Backend     | ✅ Completed      | total=[N], pass=[N], fail=[N] |
+| Frontend    | @Frontend    | ✅ Completed      | total=[N], pass=[N], fail=[N] |
+| Review      | @Reviewer    | ✅ Approved       | n/a                           |
+| Docs        | @Docs        | ✅ Updated        | n/a                           |
+| Git         | @Git         | ✅ Commit ready   | n/a                           |
 
 **Commit message**: [paste from Git agent]
 

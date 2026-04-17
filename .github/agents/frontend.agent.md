@@ -32,7 +32,9 @@ If the file does not exist, **STOP** and tell the user:
 
 **Plan mode** (`plan mode` or `--plan` flag): Read the architecture guidelines and the existing codebase, then produce a Frontend Plan following the format defined in `@.github/guidelines/architecture-frontend.md`. Save it to `docs/plans/[feature-slug]-frontend.md` at the repository root. Do NOT write any code. Stop and wait for user approval.
 
-**Implement mode** (default): Load the approved plan from `docs/plans/[feature-slug]-frontend.md` and implement it by working through the checklist defined in `@.github/guidelines/architecture-frontend.md`. Follow every convention in `@.github/guidelines/architecture-frontend.md`. Confirm each step's tests pass before moving on.
+**Implement mode** (default): Load the approved plan from `docs/plans/[feature-slug]-frontend.md` and implement it by working through the checklist defined in `@.github/guidelines/architecture-frontend.md`. Follow every convention in `@.github/guidelines/architecture-frontend.md`. Confirm each step's tests pass before moving on. Run frontend tests before finalizing and include test evidence in output.
+
+**Status mode** (user asks "are you done", "status", "progress", or equivalent): Report current completion status only. Do not restart implementation, do not regenerate plan, and do not run additional edits unless the user explicitly asks to continue.
 
 ## Before You Start (both modes)
 
@@ -45,3 +47,12 @@ If the file does not exist, **STOP** and tell the user:
 ## Output
 
 End every implementation response with a Frontend Handover block following the **Handover section** in `@.github/guidelines/architecture-frontend.md`.
+
+Mandatory output requirements:
+
+1. Include a **Test Result** section.
+2. In **Test Result**, include:
+  - Status: PASS or FAIL
+  - Command: exact test command executed
+  - Notes: short output summary or failure excerpt
+3. If tests were not executed, do not present the work as complete. Explain why tests were not run and mark status as FAIL.

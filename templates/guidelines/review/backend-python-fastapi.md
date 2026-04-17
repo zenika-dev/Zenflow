@@ -23,10 +23,11 @@ Apply this file when reviewing FastAPI backend handovers or FastAPI backend file
 - [ ] Error handling is consistent across endpoints
 
 ### Testing
-- [ ] New or changed logic has test coverage
+- [ ] New or changed logic has TestClient integration test coverage
 - [ ] Edge cases are covered (invalid input, not found, constraints)
+- [ ] Dependencies are mocked via `app.dependency_overrides` where appropriate
 - [ ] Tests verify behavior, not private internals
-- [ ] Test names clearly describe behavior
+- [ ] Test names clearly describe behavior or test case
 
 ## Output Policy
 

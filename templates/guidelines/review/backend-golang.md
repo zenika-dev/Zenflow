@@ -23,10 +23,12 @@ Apply this file when reviewing Go backend handovers or Go backend files.
 - [ ] Package layout and naming follow project conventions
 
 ### Testing
-- [ ] New or changed logic has test coverage
+- [ ] New or changed logic has handler test coverage using table-driven patterns
+- [ ] Tests use `net/http/httptest` for request/response mocking
 - [ ] Edge cases are covered (invalid input, not found, constraints)
 - [ ] Tests verify behavior, not internal implementation details
-- [ ] Test names clearly describe behavior
+- [ ] Test names clearly describe the test case
+- [ ] Data access layer tests are present only if custom SQL queries exist or explicitly planned
 
 ## Output Policy
 

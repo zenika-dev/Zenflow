@@ -28,6 +28,14 @@ Purpose: backend single source of truth for architecture, implementation order, 
 - Use migrations for schema changes.
 - Keep transaction boundaries explicit in service/repository layer.
 
+## Testing Strategy (Mandatory)
+
+- Prefer handler/integration tests using table-driven test patterns (idiomatic Go).
+- Use `net/http/httptest` package to test handlers with mocked requests/responses.
+- For complex business logic in services, add unit tests with mocks as needed.
+- Do not create repository/data layer tests by default.
+- Add data layer tests only when explicitly requested by the user or required by the approved plan.
+
 ## Required Workflow Contract (Backend)
 
 Use this file as the source of truth for:

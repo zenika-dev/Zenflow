@@ -28,6 +28,13 @@ Purpose: backend single source of truth for architecture, implementation order, 
 - Use migrations for schema evolution.
 - Keep transaction boundaries explicit.
 
+## Testing Strategy (Mandatory)
+
+- Prefer TestClient integration tests (FastAPI standard).
+- Use `app.dependency_overrides` to mock database or external service dependencies.
+- For complex business logic, add unit tests with mocks at service layer.
+- Repository/data access layer testing is not standard in FastAPI; test via TestClient with mocked dependencies.
+
 ## Required Workflow Contract (Backend)
 
 Use this file as the source of truth for:

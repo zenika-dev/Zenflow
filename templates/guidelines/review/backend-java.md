@@ -23,10 +23,12 @@ Apply this file when reviewing Java backend handovers or Java backend files.
 - [ ] Package and naming conventions match the project
 
 ### Testing
-- [ ] New or changed logic has test coverage
+- [ ] New or changed service logic has test coverage (service-layer integration or unit tests)
 - [ ] Edge cases are covered (invalid input, not found, constraints)
 - [ ] Tests verify behavior, not private implementation details
 - [ ] Test names clearly describe behavior
+- [ ] Controller tests are present only if explicitly planned or user-requested
+- [ ] Repository tests are present only if custom queries exist or explicitly planned
 
 ## Output Policy
 

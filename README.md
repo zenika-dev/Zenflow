@@ -21,6 +21,24 @@ This workflow delivers a complete feature end-to-end, from branch creation to a 
 | 6 | Documentation | Updates README, JavaDoc, and TSDoc |
 | 7 | Git | Stages changes, writes a conventional commit, and prepares a PR description |
 
+#### Quick Start
+
+To use this workflow in an existing repository:
+
+```bash
+./scripts/init.sh
+```
+
+Follow the prompts to:
+1. Enter the target repository folder path (local directory).
+2. Choose backend stack (Java/Spring Boot, Go/Gin, Python/FastAPI).
+3. Choose frontend stack (React, Next.js App Router).
+4. Optionally include git conventions.
+
+The script copies `.github/agents/` and guideline templates into the target repository, ready for use.
+
+**Note:** This setup is currently temporary and will be replaced with a more streamlined approach in future phases.
+
 #### Project Setup
 
 To get the best results from this workflow, the target project should provide a few files and conventions up front. The agents are designed to follow project-specific guidance instead of inventing patterns on their own, so these inputs help keep the workflow more reliable and reduce hallucination.
@@ -34,7 +52,7 @@ For a fully working orchestration flow, you must add these files under `.github/
 - `review-backend.md`
 - `review-frontend.md`
 
-Setup instructions are centralized in the Template Library section below.
+Use the Quick Start section above to set up a new repository with these files.
 
 The architecture files are the main source of truth for Backend and Frontend implementation behavior.
 The review files are the source of truth for Reviewer checklists.
@@ -83,9 +101,7 @@ Zenflow includes a stack template library under `templates/`.
 
 The templates exist to keep core agent behavior stable while moving stack-specific architecture and review conventions into reusable files.
 
-Canonical setup flow (mandatory): copy stack templates from `templates/guidelines/` into `.github/guidelines/`, rename them to `architecture-backend.md`, `architecture-frontend.md`, `review-backend.md`, and `review-frontend.md`, then customize them for your project. Add `conventions.md` if you want Git branch and commit rules enforced.
-
-See [templates/README.md](templates/README.md) for structure and setup steps.
+See [templates/README.md](templates/README.md) for available templates and structure.
 
 ---
 

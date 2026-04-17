@@ -2,7 +2,7 @@
 name: Orchestrator
 description: Orchestrates full-stack feature delivery — calls Backend, Frontend, Docs, Reviewer, Git as sub-agents
 argument-hint: Describe the feature to build (e.g. "Build a user feedback form with POST /api/feedback endpoint")
-tools: [agent, read/readFile, agent/runSubagent, agent]
+tools: [agent, read/readFile, agent/runSubagent, agent, vscode/askQuestions]
 agents: [Backend, Frontend, Documentation, Reviewer, Git]
 user-invocable: true
 handoffs:
@@ -29,13 +29,14 @@ When you receive a feature request, follow this **exact state machine**. Do not 
 Before anything else — before planning, before writing code — ask the user whether they want to create a new branch.
 
 **Ask the user**:
-> "Would you like to create a new branch for this feature? (yes / no)"
+> "Would you like to create a new branch for this feature?"
 
 - If **no**: skip branch creation and proceed to STEP 1.
-- If **yes**: propose a branch name derived from the feature slug (e.g. `feature/book-vet-appointment`) and offer two options:
-  > "Proposed branch name: `feature/[feature-slug]`
+- If **yes**: ask for branch name preference with options (recommended: proposed):
+  > "Proposed branch name: `feature/[feature-slug]`. Which option?"
+  >
   > 1. Keep this name
-  > 2. Enter your own name"
+  > 2. Enter your own name
 
   Wait for the user's choice, then call **@Git** to create and check out the branch:
 
@@ -66,7 +67,12 @@ Do NOT create `docs/plans/` inside `backend/`, `frontend/`, or any service-speci
 
 **Wait** for Backend to return the saved plan file path.
 **Then pause and ask the user**:
-> "The feature plan has been saved to `docs/plans/[feature-slug].md`. Please review it and reply **approve** to proceed, or provide feedback to revise."
+
+**Ask the user**:
+> "The feature plan has been saved to `docs/plans/[feature-slug].md`. Does it look good?"
+
+- If **approve**: proceed to STEP 2 (implementation)
+- If **provide feedback**: show a text input asking for specific feedback, then relay to Backend for revision
 
 **Do not proceed** to implementation until the user explicitly approves the plan.
 
@@ -116,7 +122,12 @@ Do NOT create `docs/plans/` inside `backend/`, `frontend/`, or any service-speci
 
 **Wait** for Frontend to return the saved plan file path.
 **Then pause and ask the user**:
-> "The frontend plan has been saved to `docs/plans/[feature-slug]-frontend.md`. Please review it and reply **approve** to proceed, or provide feedback to revise."
+
+**Ask the user**:
+> "The frontend plan has been saved to `docs/plans/[feature-slug]-frontend.md`. Does it look good?"
+
+- If **approve**: proceed to STEP 4 (implementation)
+- If **provide feedback**: show a text input asking for specific feedback, then relay to Frontend for revision
 
 **Do not proceed** to implementation until the user explicitly approves the plan.
 

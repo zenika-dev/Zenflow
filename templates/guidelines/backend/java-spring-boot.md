@@ -58,6 +58,8 @@ Entity-first does not conflict with DTO usage: entities model persistence, while
 - Do not create controller tests by default.
 - Add controller tests only when explicitly requested by the user or required by the approved plan.
 
+**Planning constraint:** When generating a feature plan, do not include repository tests or controller tests in the testing plan unless the user explicitly requested them. The "required by the approved plan" clause applies only during implementation — it does not allow the planner to self-approve excluded test types.
+
 ## Required Workflow Contract (Backend)
 
 Use this file as the source of truth for:
@@ -88,7 +90,7 @@ Use this file as the source of truth for:
 | POST | /api/example | No | { "name": "string" } | { "id": 1 } | 400, 500 |
 
 ### Testing plan
-- Backend tests to add/update: [list]
+- Backend tests to add/update: [list — must follow Testing Strategy defaults; do not add controller or repository tests unless the user explicitly requested them]
 - Integration points to verify: [list]
 
 ### Risks and unknowns

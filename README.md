@@ -105,6 +105,34 @@ See [templates/README.md](templates/README.md) for available templates and struc
 
 ---
 
+## Project Structure
+
+```
+Zenflow/
+├── .github/
+│   ├── agents/               # Stack-agnostic agent definitions
+│   │   ├── backend.agent.md
+│   │   ├── frontend.agent.md
+│   │   ├── orchestrator.agent.md
+│   │   ├── reviewer.agent.md
+│   │   ├── documentation.agent.md
+│   │   └── git.agent.md
+│   └── instructions/         # Shared cross-agent behavior rules
+│       └── agent-questions.instructions.md
+├── templates/
+│   └── guidelines/           # Reusable stack-specific templates
+│       ├── backend/
+│       ├── frontend/
+│       ├── review/
+│       └── git-conventions/
+├── scripts/
+│   └── init.sh               # Setup script for local project initialization (temporary)
+├── README.md
+└── LICENSE
+```
+
+---
+
 ## License
 
 This project is licensed under the [Apache License 2.0](LICENSE).

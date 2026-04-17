@@ -5,10 +5,16 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 AGENTS_SRC_DIR="${REPO_ROOT}/.github/agents"
+INSTRUCTIONS_SRC_DIR="${REPO_ROOT}/.github/instructions"
 TEMPLATES_DIR="${REPO_ROOT}/templates/guidelines"
 
 if [[ ! -d "${AGENTS_SRC_DIR}" ]]; then
   echo "Error: missing agents source directory: ${AGENTS_SRC_DIR}" >&2
+  exit 1
+fi
+
+if [[ ! -d "${INSTRUCTIONS_SRC_DIR}" ]]; then
+  echo "Error: missing instructions source directory: ${INSTRUCTIONS_SRC_DIR}" >&2
   exit 1
 fi
 
@@ -34,9 +40,11 @@ fi
 
 TARGET_GITHUB_DIR="${TARGET_PATH}/.github"
 TARGET_AGENTS_DIR="${TARGET_GITHUB_DIR}/agents"
+TARGET_INSTRUCTIONS_DIR="${TARGET_GITHUB_DIR}/instructions"
 TARGET_GUIDELINES_DIR="${TARGET_GITHUB_DIR}/guidelines"
 
 mkdir -p "${TARGET_AGENTS_DIR}"
+mkdir -p "${TARGET_INSTRUCTIONS_DIR}"
 mkdir -p "${TARGET_GUIDELINES_DIR}"
 
 choose_backend_stack() {
@@ -111,6 +119,9 @@ echo
 echo "Copying agents..."
 cp "${AGENTS_SRC_DIR}"/*.md "${TARGET_AGENTS_DIR}/"
 
+echo "Copying instructions..."
+cp "${INSTRUCTIONS_SRC_DIR}"/*.md "${TARGET_INSTRUCTIONS_DIR}/"
+
 echo "Copying selected guideline templates..."
 copy_file "${TEMPLATES_DIR}/backend/${BACKEND_ARCH_FILE}" "${TARGET_GUIDELINES_DIR}/architecture-backend.md"
 copy_file "${TEMPLATES_DIR}/frontend/${FRONTEND_ARCH_FILE}" "${TARGET_GUIDELINES_DIR}/architecture-frontend.md"
@@ -135,5 +146,6 @@ echo
 echo "Initialization complete."
 echo "Target: ${TARGET_PATH}"
 echo "- Copied agents to ${TARGET_AGENTS_DIR}"
+echo "- Copied instructions to ${TARGET_INSTRUCTIONS_DIR}"
 echo "- Copied architecture/review guidelines to ${TARGET_GUIDELINES_DIR}"
 echo "- ${CONVENTIONS_MSG}"

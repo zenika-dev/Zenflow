@@ -2,7 +2,7 @@
 name: Reviewer
 description: Security and quality auditor — checks for bugs, vulnerabilities, and standards violations
 argument-hint: Pass the files or Handover blocks to review (e.g. "review backend handover" or "review FeedbackController.java for security")
-tools: [search/textSearch, read/readFile]
+tools: [search/textSearch, read/readFile, vscode/askQuestions]
 <!-- user-invocable: false -->
 user-invocable: true
 handoffs:

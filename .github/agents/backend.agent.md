@@ -2,7 +2,7 @@
 name: Backend
 description: Backend expert — implements APIs, services, repositories, and DB migrations for a feature
 argument-hint: Describe what to build, optionally pass --existing to analyse before coding (e.g. "implement POST /api/feedback" or "implement user profile update --existing")
-tools: [execute/runInTerminal, execute/runTests, read/readFile, search/textSearch, search/fileSearch, search/listDirectory, edit/createFile, edit/editFiles]
+tools: [execute/runInTerminal, execute/runTests, read/readFile, search/textSearch, search/fileSearch, search/listDirectory, edit/createFile, edit/editFiles, vscode/askQuestions]
 user-invocable: true
 handoffs:
   - label: "🎨 Hand off to Frontend"
@@ -30,7 +30,7 @@ If the file does not exist, **STOP** and tell the user:
 
 ## Mode Detection
 
-**Plan mode** (`plan mode` or `--plan` flag): Read the architecture guidelines and the existing codebase, then produce a Feature Plan following the format defined in `@.github/guidelines/architecture-backend.md`. Save it to `docs/plans/[feature-slug].md` at the repository root. Do NOT write any code. Stop and wait for user approval.
+**Plan mode** (`plan mode` or `--plan` flag): Read the architecture guidelines and the existing codebase, then produce a Feature Plan following the format **and all rules** defined in `@.github/guidelines/architecture-backend.md` — including the Testing Strategy defaults. When writing the Testing plan section, do not include test types that the Testing Strategy excludes by default (e.g. controller tests, repository tests) unless the user explicitly requested them. Save the plan to `docs/plans/[feature-slug].md` at the repository root. Do NOT write any code. Stop and wait for user approval.
 
 **Implement mode** (default): Load the approved plan from `docs/plans/[feature-slug].md` and implement it by working through the layer order and checklist defined in `@.github/guidelines/architecture-backend.md`. Follow every convention in `@.github/guidelines/architecture-backend.md`. Confirm each step compiles and tests pass before moving on. Run backend tests before finalizing and include test evidence in output.
 

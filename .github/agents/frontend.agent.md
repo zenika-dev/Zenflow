@@ -2,7 +2,7 @@
 name: Frontend
 description: Frontend expert — builds UI components and connects them to backend APIs
 argument-hint: Describe what to build, optionally pass --contract to include the API endpoint details (e.g. "build feedback form --contract POST /api/feedback {message, rating}")
-tools: [execute/runInTerminal, execute/runTests, read/readFile, search/textSearch, search/fileSearch, search/listDirectory, edit/createFile, edit/editFiles, web/fetch]
+tools: [execute/runInTerminal, execute/runTests, read/readFile, search/textSearch, search/fileSearch, search/listDirectory, edit/createFile, edit/editFiles, web/fetch, vscode/askQuestions]
 user-invocable: true
 handoffs:
   - label: "🔍 Send to Reviewer"

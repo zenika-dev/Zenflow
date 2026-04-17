@@ -2,7 +2,7 @@
 name: Git
 description: Git workflow agent — creates branches for features/Jira tickets, stages files, writes conventional commits, and prepares PR descriptions
 argument-hint: Provide a Jira ticket or feature name to branch (e.g. "PROJ-123 feedback form"), or say "commit" to finalise work in progress
-tools: [execute, read, agent, search]
+tools: [execute, read, agent, search, vscode/askQuestions]
 user-invocable: true
 handoffs:
   - label: "🔍 Review before commit"
@@ -48,7 +48,16 @@ git branch --show-current
 git log --oneline -5
 ```
 
-Identify the base branch (usually `main`, `develop`, or `dev`). If unclear, ask the user.
+Identify the base branch. If the current branch is not on a known base branch, ask:
+
+**Ask the user**:
+> "What is the base branch for this feature?"
+
+with options (recommended: `main`):
+- `main`
+- `develop`
+- `dev`
+- Other (allow free text input)
 
 ### Step 2 — Generate the branch name
 

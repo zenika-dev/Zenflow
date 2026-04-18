@@ -14,6 +14,7 @@ Purpose: backend single source of truth for architecture, implementation order, 
 - Keep business logic in service modules.
 - Keep persistence logic in repository/data modules.
 - Keep Pydantic schemas explicit for input/output contracts.
+- Follow project conventions for module layout and naming.
 
 ## API and Validation Conventions
 
@@ -21,6 +22,9 @@ Purpose: backend single source of truth for architecture, implementation order, 
 - Keep response models explicit and stable.
 - Handle exceptions centrally and return consistent error shapes.
 - Do not expose internal stack traces or sensitive internals.
+- Keep dependency injection patterns consistent with project style.
+- Do not hardcode secrets, tokens, or passwords in source files.
+- Do not log sensitive data.
 
 ## Persistence and Data Rules
 
@@ -33,6 +37,9 @@ Purpose: backend single source of truth for architecture, implementation order, 
 - Prefer TestClient integration tests (FastAPI standard).
 - Use `app.dependency_overrides` to mock database or external service dependencies.
 - For complex business logic, add unit tests with mocks at service layer.
+- Cover edge cases including invalid input, not found, and constraint violations.
+- Tests should verify behavior, not private internals.
+- Test names should clearly describe the behavior or test case.
 - Repository/data access layer testing is not standard in FastAPI; test via TestClient with mocked dependencies.
 
 ## Required Workflow Contract (Backend)

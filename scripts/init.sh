@@ -58,15 +58,12 @@ choose_backend_stack() {
   case "${backend_choice}" in
     1)
       BACKEND_ARCH_FILE="java-spring-boot.md"
-      BACKEND_REVIEW_FILE="backend-java.md"
       ;;
     2)
       BACKEND_ARCH_FILE="golang-gin.md"
-      BACKEND_REVIEW_FILE="backend-golang.md"
       ;;
     3)
       BACKEND_ARCH_FILE="python-fastapi.md"
-      BACKEND_REVIEW_FILE="backend-python-fastapi.md"
       ;;
     *)
       echo "Error: invalid backend choice '${backend_choice}'." >&2
@@ -85,11 +82,9 @@ choose_frontend_stack() {
   case "${frontend_choice}" in
     1)
       FRONTEND_ARCH_FILE="react-typescript.md"
-      FRONTEND_REVIEW_FILE="frontend-react.md"
       ;;
     2)
       FRONTEND_ARCH_FILE="nextjs-app-router.md"
-      FRONTEND_REVIEW_FILE="frontend-nextjs-app-router.md"
       ;;
     *)
       echo "Error: invalid frontend choice '${frontend_choice}'." >&2
@@ -125,8 +120,8 @@ cp "${INSTRUCTIONS_SRC_DIR}"/*.md "${TARGET_INSTRUCTIONS_DIR}/"
 echo "Copying selected guideline templates..."
 copy_file "${TEMPLATES_DIR}/backend/${BACKEND_ARCH_FILE}" "${TARGET_GUIDELINES_DIR}/architecture-backend.md"
 copy_file "${TEMPLATES_DIR}/frontend/${FRONTEND_ARCH_FILE}" "${TARGET_GUIDELINES_DIR}/architecture-frontend.md"
-copy_file "${TEMPLATES_DIR}/review/${BACKEND_REVIEW_FILE}" "${TARGET_GUIDELINES_DIR}/review-backend.md"
-copy_file "${TEMPLATES_DIR}/review/${FRONTEND_REVIEW_FILE}" "${TARGET_GUIDELINES_DIR}/review-frontend.md"
+copy_file "${TEMPLATES_DIR}/review/backend.md" "${TARGET_GUIDELINES_DIR}/review-backend.md"
+copy_file "${TEMPLATES_DIR}/review/frontend.md" "${TARGET_GUIDELINES_DIR}/review-frontend.md"
 
 case "${INCLUDE_CONVENTIONS}" in
   Y|y|"")

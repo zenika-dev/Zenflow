@@ -21,7 +21,19 @@ Purpose: frontend single source of truth for architecture, implementation checkl
 - Define loading and error boundaries where user experience requires them.
 - Follow existing styling and design system conventions.
 - Use CSS variables for design tokens (colors, spacing, radius, typography, z-index) instead of hardcoded values in component styles.
-- Meet accessibility baseline for interactive elements and form controls.
+- Separate route handlers and page logic where appropriate.
+- Keep caching and revalidation behavior explicit and appropriate.
+- Do not include API keys, tokens, or secrets in frontend source.
+- Do not render unsafe HTML without sanitization.
+- Handle user-provided content safely.
+- Do not log sensitive data.
+
+## Accessibility Rules
+
+- Inputs must have labels or equivalent accessible naming.
+- Interactive controls must have meaningful accessible names.
+- Error messaging must be perceivable and announced where needed.
+- Color must not be the only state indicator.
 
 ## Styling Token Rules (CSS Variables)
 
@@ -30,6 +42,12 @@ Purpose: frontend single source of truth for architecture, implementation checkl
 - Keep component styles consuming tokens, not redefining them.
 - For theming, override existing tokens by theme scope instead of creating parallel style systems.
 - Avoid hardcoded hex/rgb values in component-level styles unless there is a documented exception.
+
+## Testing Strategy
+
+- Components and integration points should have test coverage.
+- Mock API calls where appropriate.
+- Test loading, error, and success states.
 
 ## Required Workflow Contract (Frontend)
 

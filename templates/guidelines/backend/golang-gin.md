@@ -14,6 +14,7 @@ Purpose: backend single source of truth for architecture, implementation order, 
 - Keep business logic in service/use-case packages.
 - Keep persistence in repository/store packages.
 - Keep DTOs/models and mapping logic explicit.
+- Follow project conventions for package layout and naming.
 
 ## API and Validation Conventions
 
@@ -21,6 +22,10 @@ Purpose: backend single source of truth for architecture, implementation order, 
 - Return stable JSON response envelopes and error formats.
 - Use middleware for auth, tracing, and request logging.
 - Avoid leaking internal error details in API responses.
+- Wrap and handle errors consistently throughout the call chain.
+- Handle context propagation and timeouts consistently across handlers and services.
+- Do not hardcode secrets, tokens, or passwords in source files.
+- Do not log sensitive data.
 
 ## Persistence and Data Rules
 
@@ -33,8 +38,11 @@ Purpose: backend single source of truth for architecture, implementation order, 
 - Prefer handler/integration tests using table-driven test patterns (idiomatic Go).
 - Use `net/http/httptest` package to test handlers with mocked requests/responses.
 - For complex business logic in services, add unit tests with mocks as needed.
+- Cover edge cases including invalid input, not found, and constraint violations.
+- Tests should verify behavior, not internal implementation details.
+- Test names should clearly describe the test case.
 - Do not create repository/data layer tests by default.
-- Add data layer tests only when explicitly requested by the user or required by the approved plan.
+- Add data layer tests only when custom SQL queries exist, or when explicitly requested by the user or required by the approved plan.
 
 ## Required Workflow Contract (Backend)
 

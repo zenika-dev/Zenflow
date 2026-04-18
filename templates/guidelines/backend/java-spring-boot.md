@@ -16,6 +16,7 @@ Purpose: backend single source of truth for architecture, implementation order, 
 - Keep persistence logic in `repository` packages.
 - Keep DTOs, entities, and mappers separated by responsibility.
 - Use DTOs at API boundaries; do not replace persistence entities with DTOs in repository layer.
+- Follow project conventions for package and class naming.
 
 ## API and Validation Conventions
 
@@ -25,6 +26,9 @@ Purpose: backend single source of truth for architecture, implementation order, 
 - Validate request DTOs using Bean Validation annotations.
 - Return stable response shapes for success and error cases.
 - Use `@ControllerAdvice` (or project equivalent) for centralized exception handling.
+- Do not leak sensitive implementation details in client-facing error responses.
+- Do not hardcode secrets, tokens, or passwords in source files.
+- Do not log sensitive data.
 
 ## Persistence and Data Rules
 
@@ -53,8 +57,11 @@ Entity-first does not conflict with DTO usage: entities model persistence, while
 - Prefer service-layer tests as the default verification layer.
 - For straightforward rules, use integration-style service tests against in-memory DB where appropriate.
 - For complex business branching, use unit tests with mocks at service layer.
+- Cover edge cases including invalid input, not found, and constraint violations.
+- Tests should verify behavior, not private implementation details.
+- Test names should clearly describe the behavior under test.
 - Do not create repository tests by default.
-- Add repository tests only when explicitly requested by the user or required by the approved plan.
+- Add repository tests only when custom queries exist, or when explicitly requested by the user or required by the approved plan.
 - Do not create controller tests by default.
 - Add controller tests only when explicitly requested by the user or required by the approved plan.
 

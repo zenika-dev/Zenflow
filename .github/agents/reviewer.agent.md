@@ -43,26 +43,26 @@ Use `read/readFile` to read the **actual file contents** of everything listed in
 
 ## Review Guidelines
 
-Before reviewing any code, detect the input type first, then load guidelines conditionally:
+Before reviewing any code, detect the input type first, then load the review protocol conditionally:
 
 1. If the request contains a **Backend Handover only**:
 - Read `@.github/guidelines/review-backend.md` only.
-- Do not load `review-frontend.md`.
+- Do not load `@.github/guidelines/review-frontend.md`.
 
 2. If the request contains a **Frontend Handover only**:
 - Read `@.github/guidelines/review-frontend.md` only.
-- Do not load `review-backend.md`.
+- Do not load `@.github/guidelines/review-backend.md`.
 
 3. If the request contains **both Backend and Frontend Handovers**:
 - Read both `@.github/guidelines/review-backend.md` and `@.github/guidelines/review-frontend.md`.
 
 4. If the request is a **targeted file review**:
-- Load only the checklist that matches the file domain (backend or frontend).
+- Load only the review protocol that matches the file domain (backend or frontend).
 
 Missing file behavior:
 
-- If backend checklist is required but missing, STOP and tell the user to add `@.github/guidelines/review-backend.md`.
-- If frontend checklist is required but missing, STOP and tell the user to add `@.github/guidelines/review-frontend.md`.
+- If backend review protocol is required but missing, STOP and tell the user to add `@.github/guidelines/review-backend.md`.
+- If frontend review protocol is required but missing, STOP and tell the user to add `@.github/guidelines/review-frontend.md`.
 
 ---
 

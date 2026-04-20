@@ -23,20 +23,16 @@ if [[ ! -d "${TEMPLATES_DIR}" ]]; then
   exit 1
 fi
 
+TARGET_PATH="${REPO_ROOT}/target"
+
 echo "Zenflow initialization"
-echo "This script copies .github/agents and selected guideline templates into a target folder."
+echo "The following will be generated inside the target folder (${TARGET_PATH}):"
+echo "  - .github/agents/        (agent definitions)"
+echo "  - .github/instructions/  (instruction files)"
+echo "  - .github/guidelines/    (architecture, review, and conventions templates)"
 echo
-
-read -r -p "Target local repository folder path: " TARGET_PATH
-if [[ -z "${TARGET_PATH}" ]]; then
-  echo "Error: target path is required." >&2
-  exit 1
-fi
-
-if [[ ! -d "${TARGET_PATH}" ]]; then
-  echo "Error: target folder does not exist: ${TARGET_PATH}" >&2
-  exit 1
-fi
+read -r -n 1 -s -p "Press any key to continue..."
+echo
 
 TARGET_GITHUB_DIR="${TARGET_PATH}/.github"
 TARGET_AGENTS_DIR="${TARGET_GITHUB_DIR}/agents"

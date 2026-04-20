@@ -2,7 +2,7 @@
 name: Orchestrator
 description: Orchestrates full-stack feature delivery — calls Backend, Frontend, Docs, Reviewer, Git as sub-agents
 argument-hint: Describe the feature to build (e.g. "Build a user feedback form with POST /api/feedback endpoint")
-tools: [agent, read/readFile, agent/runSubagent, agent]
+tools: [agent, read/readFile, agent/runSubagent, agent, vscode/askQuestions]
 agents: [Backend, Frontend, Documentation, Reviewer, Git]
 user-invocable: true
 handoffs:
@@ -29,13 +29,14 @@ When you receive a feature request, follow this **exact state machine**. Do not 
 Before anything else — before planning, before writing code — ask the user whether they want to create a new branch.
 
 **Ask the user**:
-> "Would you like to create a new branch for this feature? (yes / no)"
+> "Would you like to create a new branch for this feature?"
 
 - If **no**: skip branch creation and proceed to STEP 1.
-- If **yes**: propose a branch name derived from the feature slug (e.g. `feature/book-vet-appointment`) and offer two options:
-  > "Proposed branch name: `feature/[feature-slug]`
+- If **yes**: ask for branch name preference with options (recommended: proposed):
+  > "Proposed branch name: `feature/[feature-slug]`. Which option?"
+  >
   > 1. Keep this name
-  > 2. Enter your own name"
+  > 2. Enter your own name
 
   Wait for the user's choice, then call **@Git** to create and check out the branch:
 
@@ -59,12 +60,19 @@ Call **@Backend** in plan mode:
 Prompt to Backend:
 "Plan mode: produce a Feature Plan for [feature name].
 Do NOT write any code yet.
-Save the plan to `docs/plans/[feature-slug].md` and return the file path."
+Save the plan to `docs/plans/[feature-slug].md` at the repository root and return the file path.
+If `docs/plans/` does not exist at the repository root, create it there.
+Do NOT create `docs/plans/` inside `backend/`, `frontend/`, or any service-specific subdirectory."
 ```
 
 **Wait** for Backend to return the saved plan file path.
 **Then pause and ask the user**:
-> "The feature plan has been saved to `docs/plans/[feature-slug].md`. Please review it and reply **approve** to proceed, or provide feedback to revise."
+
+**Ask the user**:
+> "The feature plan has been saved to `docs/plans/[feature-slug].md`. Does it look good?"
+
+- If **approve**: proceed to STEP 2 (implementation)
+- If **provide feedback**: show a text input asking for specific feedback, then relay to Backend for revision
 
 **Do not proceed** to implementation until the user explicitly approves the plan.
 
@@ -83,8 +91,15 @@ Required output: End your response with a ### Backend Handover block."
 ```
 
 **Wait** for Backend to return.
-**Check**: Did it include a `### Backend Handover` block? Did tests pass?
-**If failed**: Retry once with the error message. If still failing, stop and inform the user.
+**Check**:
+- Did it include a `### Backend Handover` block?
+- Did it include a `Test Result` section with `Status`, `Command`, and `Notes`?
+- Is `Test Result Status` explicitly `PASS`?
+
+If any check fails, retry once with a strict correction prompt:
+> "Your output is incomplete. Return a full `### Backend Handover` including `Test Result` with Status/Command/Notes and run tests before finalizing."
+
+If still failing after one retry, stop and inform the user.
 
 ---
 
@@ -100,12 +115,19 @@ Do NOT write any code yet.
 API Contract from Backend:
 [paste the ### Backend Handover block exactly]
 
-Save the plan to `docs/plans/[feature-slug]-frontend.md` and return the file path."
+Save the plan to `docs/plans/[feature-slug]-frontend.md` at the repository root and return the file path.
+If `docs/plans/` does not exist at the repository root, create it there.
+Do NOT create `docs/plans/` inside `backend/`, `frontend/`, or any service-specific subdirectory."
 ```
 
 **Wait** for Frontend to return the saved plan file path.
 **Then pause and ask the user**:
-> "The frontend plan has been saved to `docs/plans/[feature-slug]-frontend.md`. Please review it and reply **approve** to proceed, or provide feedback to revise."
+
+**Ask the user**:
+> "The frontend plan has been saved to `docs/plans/[feature-slug]-frontend.md`. Does it look good?"
+
+- If **approve**: proceed to STEP 4 (implementation)
+- If **provide feedback**: show a text input asking for specific feedback, then relay to Frontend for revision
 
 **Do not proceed** to implementation until the user explicitly approves the plan.
 
@@ -128,8 +150,15 @@ Required output: End your response with a ### Frontend Handover block."
 ```
 
 **Wait** for Frontend to return.
-**Check**: Did it include a `### Frontend Handover` block? Did tests pass?
-**If failed**: Retry once. If still failing, stop and inform the user.
+**Check**:
+- Did it include a `### Frontend Handover` block?
+- Did it include a `Test Result` section with `Status`, `Command`, and `Notes`?
+- Is `Test Result Status` explicitly `PASS`?
+
+If any check fails, retry once with a strict correction prompt:
+> "Your output is incomplete. Return a full `### Frontend Handover` including `Test Result` with Status/Command/Notes and run tests before finalizing."
+
+If still failing after one retry, stop and inform the user.
 
 ---
 
@@ -202,13 +231,13 @@ Present this to the user:
 ```
 ## ✅ Feature Delivery: [Feature Name]
 
-| Step        | Agent        | Status                   |
-|-------------|--------------|--------------------------|
-| Backend     | @Backend     | ✅ Tests passing         |
-| Frontend    | @Frontend    | ✅ Tests passing         |
-| Review      | @Reviewer    | ✅ Approved              |
-| Docs        | @Docs        | ✅ Updated               |
-| Git         | @Git         | ✅ Commit ready          |
+| Step        | Agent        | Status            | Test Summary                  |
+|-------------|--------------|-------------------|-------------------------------|
+| Backend     | @Backend     | ✅ Completed      | total=[N], pass=[N], fail=[N] |
+| Frontend    | @Frontend    | ✅ Completed      | total=[N], pass=[N], fail=[N] |
+| Review      | @Reviewer    | ✅ Approved       | n/a                           |
+| Docs        | @Docs        | ✅ Updated        | n/a                           |
+| Git         | @Git         | ✅ Commit ready   | n/a                           |
 
 **Commit message**: [paste from Git agent]
 

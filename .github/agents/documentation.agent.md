@@ -2,7 +2,7 @@
 name: Documentation
 description: Technical writer — updates README, API docs, JavaDoc, and TSDoc based on what was implemented
 argument-hint: Pass the Backend and Frontend Handover blocks, or specify a file/section to document (e.g. "document FeedbackController" or "update README API section")
-tools: [execute, read/readFile, agent, edit, search/textSearch]
+tools: [execute, read/readFile, agent, edit, search/textSearch, vscode/askQuestions]
 <!-- user-invocable: false -->
 user-invocable: true
 handoffs:

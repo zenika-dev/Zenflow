@@ -24,7 +24,13 @@ if (-not (Test-Path $TemplatesDir -PathType Container)) {
     exit 1
 }
 
-$TargetPath = Join-Path $RepoRoot 'target'
+$DefaultTargetPath = Join-Path $RepoRoot 'target'
+$TargetPathInput = Read-Host "Target path [$DefaultTargetPath]"
+if ([string]::IsNullOrWhiteSpace($TargetPathInput)) {
+    $TargetPath = $DefaultTargetPath
+} else {
+    $TargetPath = $TargetPathInput
+}
 
 Write-Host "Zenflow initialization"
 Write-Host "The following will be generated inside the target folder ($TargetPath):"

@@ -23,7 +23,9 @@ if [[ ! -d "${TEMPLATES_DIR}" ]]; then
   exit 1
 fi
 
-TARGET_PATH="${REPO_ROOT}/target"
+DEFAULT_TARGET_PATH="${REPO_ROOT}/target"
+read -r -p "Target path [${DEFAULT_TARGET_PATH}]: " TARGET_PATH_INPUT
+TARGET_PATH="${TARGET_PATH_INPUT:-${DEFAULT_TARGET_PATH}}"
 
 echo "Zenflow initialization"
 echo "The following will be generated inside the target folder (${TARGET_PATH}):"

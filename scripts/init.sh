@@ -9,6 +9,7 @@ REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 AGENTS_SRC_DIR="${REPO_ROOT}/.github/agents"
 INSTRUCTIONS_SRC_DIR="${REPO_ROOT}/.github/instructions"
 TEMPLATES_DIR="${REPO_ROOT}/templates/guidelines"
+DOCUMENTATION_TEMPLATES_DIR="${TEMPLATES_DIR}/documentation"
 
 if [[ ! -d "${AGENTS_SRC_DIR}" ]]; then
   echo "Error: missing agents source directory: ${AGENTS_SRC_DIR}" >&2
@@ -108,12 +109,15 @@ choose_backend_stack() {
   case "${backend_choice}" in
     1)
       BACKEND_ARCH_FILE="java-spring-boot.md"
+      BACKEND_DOC_FILE="java-spring-boot.md"
       ;;
     2)
       BACKEND_ARCH_FILE="golang-gin.md"
+      BACKEND_DOC_FILE=""
       ;;
     3)
       BACKEND_ARCH_FILE="python-fastapi.md"
+      BACKEND_DOC_FILE=""
       ;;
     *)
       echo "Error: invalid backend choice '${backend_choice}'." >&2
@@ -132,9 +136,11 @@ choose_frontend_stack() {
   case "${frontend_choice}" in
     1)
       FRONTEND_ARCH_FILE="react-typescript.md"
+      FRONTEND_DOC_FILE="react-typescript.md"
       ;;
     2)
       FRONTEND_ARCH_FILE="nextjs-app-router.md"
+      FRONTEND_DOC_FILE=""
       ;;
     *)
       echo "Error: invalid frontend choice '${frontend_choice}'." >&2
@@ -189,6 +195,20 @@ copy_file "${TEMPLATES_DIR}/backend/${BACKEND_ARCH_FILE}" "${TARGET_GUIDELINES_D
 copy_file "${TEMPLATES_DIR}/frontend/${FRONTEND_ARCH_FILE}" "${TARGET_GUIDELINES_DIR}/architecture-frontend.md"
 copy_file "${TEMPLATES_DIR}/review/backend.md" "${TARGET_GUIDELINES_DIR}/review-backend.md"
 copy_file "${TEMPLATES_DIR}/review/frontend.md" "${TARGET_GUIDELINES_DIR}/review-frontend.md"
+
+if [[ -n "${BACKEND_DOC_FILE}" ]]; then
+  copy_file "${DOCUMENTATION_TEMPLATES_DIR}/${BACKEND_DOC_FILE}" "${TARGET_GUIDELINES_DIR}/documentation-backend.md"
+  BACKEND_DOC_MSG="Included backend documentation template"
+else
+  BACKEND_DOC_MSG="Skipped backend documentation template"
+fi
+
+if [[ -n "${FRONTEND_DOC_FILE}" ]]; then
+  copy_file "${DOCUMENTATION_TEMPLATES_DIR}/${FRONTEND_DOC_FILE}" "${TARGET_GUIDELINES_DIR}/documentation-frontend.md"
+  FRONTEND_DOC_MSG="Included frontend documentation template"
+else
+  FRONTEND_DOC_MSG="Skipped frontend documentation template"
+fi
 
 case "${INCLUDE_CONVENTIONS}" in
   Y|y|"")
@@ -250,3 +270,7 @@ echo "Target: ${TARGET_PATH}"
 echo "✓ GitHub Copilot (VS Code): .github/agents, instructions, and guidelines"
 [[ "${DEPLOY_OPENCODE}" == "true" ]] && echo "✓ OpenCode: .opencode/skills/ and AGENTS.md"
 [[ "${DEPLOY_CLAUDE}" == "true" ]] && echo "✓ Claude Code: .claude/skills/ and CLAUDE.md"
+
+echo "- ${BACKEND_DOC_MSG}"
+echo "- ${FRONTEND_DOC_MSG}"
+echo "- ${CONVENTIONS_MSG}"

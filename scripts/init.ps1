@@ -5,6 +5,36 @@ $ErrorActionPreference = 'Stop'
 $ScriptDir  = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot   = Split-Path -Parent $ScriptDir
 
+function Show-Help {
+    $scriptName = Split-Path -Leaf $MyInvocation.MyCommand.Path
+    Write-Host "Usage: $scriptName [--help|-h]"
+    Write-Host ""
+    Write-Host "Initializes Zenflow target scaffolding by copying:"
+    Write-Host "  - .github/agents"
+    Write-Host "  - .github/instructions"
+    Write-Host "  - selected templates under .github/guidelines"
+    Write-Host ""
+    Write-Host "Options:"
+    Write-Host "  -h, --help    Show this help message and exit"
+}
+
+foreach ($arg in $args) {
+    switch ($arg) {
+        '-h' {
+            Show-Help
+            exit 0
+        }
+        '--help' {
+            Show-Help
+            exit 0
+        }
+        default {
+            Write-Error "Error: unknown argument '$arg'. Use --help for usage."
+            exit 1
+        }
+    }
+}
+
 $AgentsSrcDir       = Join-Path $RepoRoot '.github' 'agents'
 $InstructionsSrcDir = Join-Path $RepoRoot '.github' 'instructions'
 $TemplatesDir       = Join-Path $RepoRoot 'templates' 'guidelines'

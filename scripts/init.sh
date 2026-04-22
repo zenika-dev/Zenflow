@@ -8,6 +8,33 @@ AGENTS_SRC_DIR="${REPO_ROOT}/.github/agents"
 INSTRUCTIONS_SRC_DIR="${REPO_ROOT}/.github/instructions"
 TEMPLATES_DIR="${REPO_ROOT}/templates/guidelines"
 
+show_help() {
+  cat <<EOF
+Usage: $(basename "$0") [--help|-h]
+
+Initializes Zenflow target scaffolding by copying:
+  - .github/agents
+  - .github/instructions
+  - selected templates under .github/guidelines
+
+Options:
+  -h, --help    Show this help message and exit
+EOF
+}
+
+for arg in "$@"; do
+  case "${arg}" in
+    -h|--help)
+      show_help
+      exit 0
+      ;;
+    *)
+      echo "Error: unknown argument '${arg}'. Use --help for usage." >&2
+      exit 1
+      ;;
+  esac
+done
+
 if [[ ! -d "${AGENTS_SRC_DIR}" ]]; then
   echo "Error: missing agents source directory: ${AGENTS_SRC_DIR}" >&2
   exit 1

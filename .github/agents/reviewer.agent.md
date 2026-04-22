@@ -12,7 +12,7 @@ handoffs:
     send: true
   - label: "📄 Approved — Update Docs"
     agent: Documentation
-    prompt: "Review passed. Update README, JavaDoc, and TSDoc based on the Backend and Frontend Handovers."
+    prompt: "Review passed. Update README and other relevant documentation based on the Backend and Frontend Handovers."
     send: false
   - label: "🔁 Send back to Backend"
     agent: Backend

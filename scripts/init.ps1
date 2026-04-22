@@ -38,6 +38,7 @@ foreach ($arg in $args) {
 $AgentsSrcDir       = Join-Path $RepoRoot '.github' 'agents'
 $InstructionsSrcDir = Join-Path $RepoRoot '.github' 'instructions'
 $TemplatesDir       = Join-Path $RepoRoot 'templates' 'guidelines'
+$DocumentationTemplatesDir = Join-Path $TemplatesDir 'documentation'
 
 if (-not (Test-Path $AgentsSrcDir -PathType Container)) {
     Write-Error "Error: missing agents source directory: $AgentsSrcDir"
@@ -132,6 +133,28 @@ function Choose-FrontendStack {
     }
 }
 
+function Get-BackendDocumentationFile {
+    param(
+        [string]$BackendArchFile
+    )
+
+    switch ($BackendArchFile) {
+        'java-spring-boot.md' { return 'java-spring-boot.md' }
+        default { return '' }
+    }
+}
+
+function Get-FrontendDocumentationFile {
+    param(
+        [string]$FrontendArchFile
+    )
+
+    switch ($FrontendArchFile) {
+        'react-typescript.md' { return 'react-typescript.md' }
+        default { return '' }
+    }
+}
+
 function Copy-RequiredFile {
     param(
         [string]$Src,
@@ -162,6 +185,8 @@ function Copy-AgentsAsSkills {
 # 3. Stack choices
 $BackendArchFile  = Choose-BackendStack
 $FrontendArchFile = Choose-FrontendStack
+$BackendDocFile = Get-BackendDocumentationFile -BackendArchFile $BackendArchFile
+$FrontendDocFile = Get-FrontendDocumentationFile -FrontendArchFile $FrontendArchFile
 
 Write-Host ""
 $includeConventions = Read-Host "Include git conventions template as .github/guidelines/conventions.md? [Y/N]"
@@ -184,6 +209,20 @@ Copy-RequiredFile (Join-Path $TemplatesDir 'backend'  $BackendArchFile)  (Join-P
 Copy-RequiredFile (Join-Path $TemplatesDir 'frontend' $FrontendArchFile) (Join-Path $TargetGuidelinesDir 'architecture-frontend.md')
 Copy-RequiredFile (Join-Path $TemplatesDir 'review'   'backend.md')      (Join-Path $TargetGuidelinesDir 'review-backend.md')
 Copy-RequiredFile (Join-Path $TemplatesDir 'review'   'frontend.md')     (Join-Path $TargetGuidelinesDir 'review-frontend.md')
+
+if (-not [string]::IsNullOrWhiteSpace($BackendDocFile)) {
+    Copy-RequiredFile (Join-Path $DocumentationTemplatesDir $BackendDocFile) (Join-Path $TargetGuidelinesDir 'documentation-backend.md')
+    $BackendDocMsg = "Included backend documentation template"
+} else {
+    $BackendDocMsg = "Skipped backend documentation template"
+}
+
+if (-not [string]::IsNullOrWhiteSpace($FrontendDocFile)) {
+    Copy-RequiredFile (Join-Path $DocumentationTemplatesDir $FrontendDocFile) (Join-Path $TargetGuidelinesDir 'documentation-frontend.md')
+    $FrontendDocMsg = "Included frontend documentation template"
+} else {
+    $FrontendDocMsg = "Skipped frontend documentation template"
+}
 
 switch ($includeConventions) {
     { $_ -in 'Y','y','' } {
@@ -246,3 +285,6 @@ Write-Host "Target: $TargetPath"
 Write-Host "✓ GitHub Copilot (VS Code): .github/agents, instructions, and guidelines"
 if ($DeployOpenCode) { Write-Host "✓ OpenCode: .opencode/skills/ and AGENTS.md" }
 if ($DeployClaude) { Write-Host "✓ Claude Code: .claude/skills/ and CLAUDE.md" }
+Write-Host "- $BackendDocMsg"
+Write-Host "- $FrontendDocMsg"
+Write-Host "- $ConventionsMsg"

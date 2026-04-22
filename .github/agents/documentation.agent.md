@@ -1,6 +1,6 @@
 ---
 name: Documentation
-description: Technical writer — updates README, API docs, JavaDoc, and TSDoc based on what was implemented
+description: Technical writer — updates README, API docs, and other relevant documentation based on what was implemented
 argument-hint: Pass the Backend and Frontend Handover blocks, or specify a file/section to document (e.g. "document FeedbackController" or "update README API section")
 tools: [execute, read/readFile, agent, edit, search/textSearch, vscode/askQuestions]
 <!-- user-invocable: false -->
@@ -59,52 +59,14 @@ Creates a new feedback record.
 | `500` | Internal server error |
 ````
 
-### 2. JavaDoc — Java Classes
 
-Add or update Javadoc on changed Controller methods, Service methods, and Entities.
+### 2. Language specific documentation
+If the following files exist, read and follow their instructions
+- `@.github/guidelines/documentation-backend.md`.
+- `@.github/guidelines/documentation-frontend.md`
 
-```java
-/**
- * Submits user feedback.
- *
- * @param request the validated feedback request containing message and rating
- * @return the created feedback record with generated ID and timestamp
- * @throws ConstraintViolationException if request validation fails
- */
-```
 
-For entities, document non-obvious fields:
-
-```java
-/**
- * Numeric rating from 1 (poor) to 5 (excellent).
- * Validated at persistence layer — cannot be null or outside range.
- */
-@Column(nullable = false)
-private Integer rating;
-```
-
-### 3. TSDoc — React Components
-
-Add TSDoc to props interfaces and exported hooks:
-
-```typescript
-/**
- * Form for submitting user feedback.
- * Calls POST /api/feedback on submission.
- *
- * @example
- * <FeedbackForm onSuccess={(id) => console.log('Created:', id)} />
- */
-interface FeedbackFormProps {
-  /** Called with the new record's ID on successful submission */
-  onSuccess: (id: number) => void;
-  /** If provided, pre-fills the form for editing an existing record */
-  initialValues?: Partial<FeedbackRequest>;
-}
-```
-
-### 4. Changelog (if one exists)
+### 3. Changelog (if one exists)
 
 Add an entry at the top of `CHANGELOG.md`:
 

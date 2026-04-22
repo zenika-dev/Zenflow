@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+
+# Setup directories
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
@@ -8,6 +10,22 @@ AGENTS_SRC_DIR="${REPO_ROOT}/.github/agents"
 INSTRUCTIONS_SRC_DIR="${REPO_ROOT}/.github/instructions"
 TEMPLATES_DIR="${REPO_ROOT}/templates/guidelines"
 
+if [[ ! -d "${AGENTS_SRC_DIR}" ]]; then
+  echo "Error: missing agents source directory: ${AGENTS_SRC_DIR}" >&2
+  exit 1
+fi
+
+if [[ ! -d "${INSTRUCTIONS_SRC_DIR}" ]]; then
+  echo "Error: missing instructions source directory: ${INSTRUCTIONS_SRC_DIR}" >&2
+  exit 1
+fi
+
+if [[ ! -d "${TEMPLATES_DIR}" ]]; then
+  echo "Error: missing templates source directory: ${TEMPLATES_DIR}" >&2
+  exit 1
+fi
+
+# Help message
 show_help() {
   cat <<EOF
 Usage: $(basename "$0") [--help|-h]
@@ -35,28 +53,34 @@ for arg in "$@"; do
   esac
 done
 
-if [[ ! -d "${AGENTS_SRC_DIR}" ]]; then
-  echo "Error: missing agents source directory: ${AGENTS_SRC_DIR}" >&2
-  exit 1
-fi
+# User configurations
+# 1. Target directory
+DEFAULT_TARGET_PATH="${REPO_ROOT}/target"
+read -r -p "Target path [${DEFAULT_TARGET_PATH}]: " TARGET_PATH_INPUT
+TARGET_PATH="${TARGET_PATH_INPUT:-${DEFAULT_TARGET_PATH}}"
 
-if [[ ! -d "${INSTRUCTIONS_SRC_DIR}" ]]; then
-  echo "Error: missing instructions source directory: ${INSTRUCTIONS_SRC_DIR}" >&2
-  exit 1
-fi
+# 2. Optional add-on tools (Copilot/VS Code is always deployed)
+read -r -p "Also set up OpenCode? [Y/N]: " opencode_input
+DEPLOY_OPENCODE=false
+[[ "${opencode_input}" =~ ^[Yy]$ ]] && DEPLOY_OPENCODE=true
 
-if [[ ! -d "${TEMPLATES_DIR}" ]]; then
-  echo "Error: missing templates source directory: ${TEMPLATES_DIR}" >&2
-  exit 1
-fi
-
-TARGET_PATH="${REPO_ROOT}/target"
+read -r -p "Also set up Claude Code? [Y/N]: " claude_input
+DEPLOY_CLAUDE=false
+[[ "${claude_input}" =~ ^[Yy]$ ]] && DEPLOY_CLAUDE=true
 
 echo "Zenflow initialization"
-echo "The following will be generated inside the target folder (${TARGET_PATH}):"
+echo "Target path: ${TARGET_PATH}"
+echo "Tools:"
+echo "  ✓ GitHub Copilot (VS Code) — always installed"
+[[ "${DEPLOY_OPENCODE}" == "true" ]] && echo "  ✓ OpenCode"
+[[ "${DEPLOY_CLAUDE}" == "true" ]] && echo "  ✓ Claude Code"
+echo
+echo "The following will be generated:"
 echo "  - .github/agents/        (agent definitions)"
 echo "  - .github/instructions/  (instruction files)"
-echo "  - .github/guidelines/    (architecture, review, and conventions templates)"
+echo "  - .github/guidelines/    (architecture, review, and conventions)"
+[[ "${DEPLOY_OPENCODE}" == "true" ]] && echo "  - .opencode/skills/      (OpenCode skill definitions)"
+[[ "${DEPLOY_CLAUDE}" == "true" ]] && echo "  - .claude/skills/        (Claude Code skill definitions)"
 echo
 read -r -n 1 -s -p "Press any key to continue..."
 echo
@@ -66,10 +90,13 @@ TARGET_AGENTS_DIR="${TARGET_GITHUB_DIR}/agents"
 TARGET_INSTRUCTIONS_DIR="${TARGET_GITHUB_DIR}/instructions"
 TARGET_GUIDELINES_DIR="${TARGET_GITHUB_DIR}/guidelines"
 
+# Always create .github directories (Copilot/VS Code is always deployed)
 mkdir -p "${TARGET_AGENTS_DIR}"
 mkdir -p "${TARGET_INSTRUCTIONS_DIR}"
 mkdir -p "${TARGET_GUIDELINES_DIR}"
 
+
+# 3. Stack choices for guidelines
 choose_backend_stack() {
   echo
   echo "Choose backend stack:"
@@ -116,11 +143,12 @@ choose_frontend_stack() {
   esac
 }
 
+# 3. Stack choices
 choose_backend_stack
 choose_frontend_stack
 
 echo
-read -r -p "Include git conventions template as .github/guidelines/conventions.md? [Y/n]: " INCLUDE_CONVENTIONS
+read -r -p "Include git conventions template as .github/guidelines/conventions.md? [Y/N]: " INCLUDE_CONVENTIONS
 INCLUDE_CONVENTIONS="${INCLUDE_CONVENTIONS:-Y}"
 
 copy_file() {
@@ -133,7 +161,23 @@ copy_file() {
   cp "${src}" "${dst}"
 }
 
+copy_agents_as_skills() {
+  local target_dir="$1"
+
+  mkdir -p "${target_dir}"
+
+  for agent_file in "${AGENTS_SRC_DIR}"/*.md; do
+    agent_name=$(basename "$agent_file" .md | sed 's/\.agent//')
+    skill_dir="${target_dir}/${agent_name}"
+    mkdir -p "$skill_dir"
+    cp "$agent_file" "${skill_dir}/SKILL.md"
+  done
+}
+
 echo
+
+# Deploy Copilot/VS Code (always)
+echo "Deploying GitHub Copilot (VS Code) setup..."
 echo "Copying agents..."
 cp "${AGENTS_SRC_DIR}"/*.md "${TARGET_AGENTS_DIR}/"
 
@@ -160,10 +204,49 @@ case "${INCLUDE_CONVENTIONS}" in
     ;;
 esac
 
+# Deploy OpenCode
+if [[ "${DEPLOY_OPENCODE}" == "true" ]]; then
+  echo "Deploying OpenCode setup..."
+  TARGET_OPENCODE_DIR="${TARGET_PATH}/.opencode/skills"
+
+  # Create OpenCode skills from agent templates
+  copy_agents_as_skills "${TARGET_OPENCODE_DIR}"
+  echo "Copied skills to ${TARGET_OPENCODE_DIR}"
+
+  # Copy AGENTS.md from template to target
+  AGENTS_TEMPLATE="${REPO_ROOT}/templates/AGENTS.md"
+  AGENTS_TARGET="${TARGET_PATH}/AGENTS.md"
+  if [[ -f "${AGENTS_TEMPLATE}" ]]; then
+    cp "${AGENTS_TEMPLATE}" "${AGENTS_TARGET}"
+    echo "Copied AGENTS.md to ${TARGET_PATH}"
+  else
+    echo "Warning: AGENTS.md template not found at ${AGENTS_TEMPLATE}" >&2
+  fi
+fi
+
+# Deploy Claude Code
+if [[ "${DEPLOY_CLAUDE}" == "true" ]]; then
+  echo "Deploying Claude Code setup..."
+  TARGET_CLAUDE_DIR="${TARGET_PATH}/.claude/skills"
+
+  # Create Claude skills from agent templates
+  copy_agents_as_skills "${TARGET_CLAUDE_DIR}"
+  echo "Copied skills to ${TARGET_CLAUDE_DIR}"
+
+  # Copy CLAUDE.md from template to target
+  CLAUDE_TEMPLATE="${REPO_ROOT}/templates/CLAUDE.md"
+  CLAUDE_TARGET="${TARGET_PATH}/CLAUDE.md"
+  if [[ -f "${CLAUDE_TEMPLATE}" ]]; then
+    cp "${CLAUDE_TEMPLATE}" "${CLAUDE_TARGET}"
+    echo "Copied CLAUDE.md to ${TARGET_PATH}"
+  else
+    echo "Warning: CLAUDE.md template not found at ${CLAUDE_TEMPLATE}" >&2
+  fi
+fi
+
 echo
 echo "Initialization complete."
 echo "Target: ${TARGET_PATH}"
-echo "- Copied agents to ${TARGET_AGENTS_DIR}"
-echo "- Copied instructions to ${TARGET_INSTRUCTIONS_DIR}"
-echo "- Copied architecture/review guidelines to ${TARGET_GUIDELINES_DIR}"
-echo "- ${CONVENTIONS_MSG}"
+echo "✓ GitHub Copilot (VS Code): .github/agents, instructions, and guidelines"
+[[ "${DEPLOY_OPENCODE}" == "true" ]] && echo "✓ OpenCode: .opencode/skills/ and AGENTS.md"
+[[ "${DEPLOY_CLAUDE}" == "true" ]] && echo "✓ Claude Code: .claude/skills/ and CLAUDE.md"

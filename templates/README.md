@@ -15,19 +15,41 @@ Review templates are **process documents only** — they define the review scope
 
 ## How To Use
 
-This is a mandatory bootstrap step before using the workflow agents.
+Use `./scripts/init.sh` (bash) or `./scripts/init.ps1` (PowerShell) to bootstrap a target repository.
+
+The script always deploys the full GitHub Copilot (VS Code) setup. OpenCode and Claude Code are optional add-ons.
+
+1. **Always deployed**: Agents, instructions, and selected guideline templates to `.github/`
+2. **Optional add-ons**: OpenCode (`.opencode/skills/`) and/or Claude Code (`.claude/skills/` + `CLAUDE.md`)
+3. All tools reference `.github/guidelines/` as the single source of truth
+
+### Example
+
+```bash
+./scripts/init.sh
+# → Enter target repository path
+# → Also set up OpenCode? [y/N]
+# → Also set up Claude Code? [y/N]
+# → Choose backend stack (java-spring-boot, golang-gin, python-fastapi)
+# → Choose frontend stack (react-typescript, nextjs-app-router)
+# → Include conventions? [Y/n]
+# → Press key to continue
+# → Scaffolding complete!
+```
+
+### Manual Setup (if not using init script)
 
 1. Choose one backend template and one frontend template.
 2. Copy the selected architecture templates and both review protocol templates into `.github/guidelines/`.
-3. Rename them to match the files expected by agents:
-   - backend architecture -> `.github/guidelines/architecture-backend.md`
-   - frontend architecture -> `.github/guidelines/architecture-frontend.md`
-   - backend review -> `.github/guidelines/review-backend.md`
-   - frontend review -> `.github/guidelines/review-frontend.md`
-   - conventions -> `.github/guidelines/conventions.md`
+3. Rename them to match the expected file structure:
+   - backend architecture → `.github/guidelines/architecture-backend.md`
+   - frontend architecture → `.github/guidelines/architecture-frontend.md`
+   - backend review → `.github/guidelines/review-backend.md`
+   - frontend review → `.github/guidelines/review-frontend.md`
+   - (optional) conventions → `.github/guidelines/conventions.md`
 4. Edit each copied file with project-specific details.
 
-Minimum required files for successful orchestration:
+**Minimum required files:**
 - `.github/guidelines/architecture-backend.md`
 - `.github/guidelines/architecture-frontend.md`
 - `.github/guidelines/review-backend.md`

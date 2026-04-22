@@ -2,6 +2,8 @@
 
 Zenflow is an **open-source project** that showcases the most common agentic workflows for AI-driven software development. Each workflow is implemented as a team of collaborating AI agents, demonstrating patterns that teams can study, adapt, and build upon.
 
+**Zenflow supports GitHub Copilot (VS Code), OpenCode, and Claude Code.** GitHub Copilot is always deployed as the baseline. OpenCode and Claude Code are optional add-ons.
+
 ---
 
 ## Workflows
@@ -23,75 +25,60 @@ This workflow delivers a complete feature end-to-end, from branch creation to a 
 
 #### Quick Start
 
-To use this workflow in an existing repository:
+To use this workflow in an existing repository, run the init script:
 
 ```bash
+# bash (Linux/macOS)
 ./scripts/init.sh
+
+# PowerShell (Windows)
+.\scripts\init.ps1
 ```
 
 Follow the prompts to:
-1. Enter the target repository folder path (local directory).
-2. Choose backend stack (Java/Spring Boot, Go/Gin, Python/FastAPI).
-3. Choose frontend stack (React, Next.js App Router).
-4. Optionally include git conventions.
+1. Enter the target repository folder path.
+2. Optionally add OpenCode and/or Claude Code on top of Copilot.
+3. Choose backend stack (Java/Spring Boot, Go/Gin, Python/FastAPI).
+4. Choose frontend stack (React, Next.js App Router).
+5. Optionally include git conventions.
 
-The script copies `.github/agents/` and guideline templates into the target repository, ready for use.
+The script always deploys:
+- **GitHub Copilot (VS Code)**: Agents, instructions, and guidelines to `.github/`
 
-**Note:** This setup is currently temporary and will be replaced with a more streamlined approach in future phases.
+Optionally also deploys:
+- **OpenCode**: Wraps agents as skills in `.opencode/skills/`
+- **Claude Code**: Wraps agents as skills in `.claude/skills/` and copies `CLAUDE.md` to the repository root
+
+All tools reference `.github/guidelines/` as their single source of truth.
 
 #### Project Setup
 
-To get the best results from this workflow, the target project should provide a few files and conventions up front. The agents are designed to follow project-specific guidance instead of inventing patterns on their own, so these inputs help keep the workflow more reliable and reduce hallucination.
+The init script always deploys the full GitHub Copilot setup. After running the script, the target repository will have:
 
-##### Required Guidance Files
+- **.github/agents/**: Agent definitions for Copilot
+- **.github/instructions/**: Shared cross-agent behavior rules
+- **.github/guidelines/**: Stack-specific architecture, review, and conventions — the single source of truth used by all tools
+- **.opencode/skills/** (if OpenCode selected): Skills mirroring the agent structure, referencing `.github/guidelines/`
+- **.claude/skills/** and **CLAUDE.md** (if Claude Code selected): Skills and entry point for Claude Code, referencing `.github/guidelines/`
 
-For a fully working orchestration flow, you must add these files under `.github/guidelines/` before running agents:
-
-- `architecture-backend.md`
-- `architecture-frontend.md`
-- `review-backend.md`
-- `review-frontend.md`
-
-Use the Quick Start section above to set up a new repository with these files.
-
-The architecture files are the main source of truth for Backend and Frontend implementation behavior.
-The review files are the source of truth for Reviewer checklists.
-
-`architecture-backend.md` should ideally describe things like:
-
-- backend framework and language conventions
-- package and folder structure
-- controller, service, repository, and entity patterns
-- validation rules and error-handling conventions
-- database and migration expectations
-- testing strategy, including when to write service, repository, or controller tests
-
-`architecture-frontend.md` should ideally describe things like:
-
-- frontend framework and language conventions
-- component and service structure
-- API client patterns
-- routing conventions
-- styling approach
-- accessibility expectations
-- testing strategy and preferred test patterns
-
-The more explicit these files are, the more consistently the agents can follow your standards.
-
-For Git branch and commit conventions, you can also provide:
-
-- `.github/guidelines/conventions.md`
-
-If present, the Git agent will use it for branch naming and commit formatting.
+For best results, ensure the target project provides additional context:
 
 ##### Recommended Supporting Files
 
-- `README.md`
-  The Documentation agent updates the README, so it helps if the project already has a clear structure and an API or usage section to extend.
-- `.github/copilot-instructions.md`
-  The Documentation agent will load this if it exists. It can be useful for project-specific context, terminology, and documentation expectations.
-- `docs/plans/`
-  The Backend and Frontend agents save planning artifacts here for user review before implementation. Creating this directory up front helps keep plan outputs consistent.
+- **README.md**: The Documentation agent updates the README, so it helps if the project already has a clear structure and an API or usage section to extend.
+- **docs/plans/**: The Backend and Frontend agents save planning artifacts here for user review before implementation. Create this directory up front to keep outputs consistent.
+- **.github/copilot-instructions.md**: The Documentation agent will load this if it exists. It can be useful for project-specific context, terminology, and documentation expectations.
+
+##### How the Guidelines Work
+
+The generated `.github/guidelines/` directory contains **all rules** for planning, implementation, and review. All tools reference this location directly:
+
+- **architecture-backend.md**: Backend framework conventions, package structure, patterns, validation rules, database expectations, and testing strategy.
+- **architecture-frontend.md**: Frontend framework conventions, component structure, API client patterns, routing, styling, accessibility, and testing strategy.
+- **review-backend.md** and **review-frontend.md**: Review scope and audit checklist against the architecture guidelines.
+- **conventions.md** (optional): Git branch and commit conventions.
+
+The more explicit these files are, the more consistently all tools can follow your standards.
 
 For a detailed flow diagram, see [docs/diagrams/fullstack-newfeature.md](docs/diagrams/fullstack-newfeature.md).
 
@@ -126,7 +113,9 @@ Zenflow/
 │       ├── review/
 │       └── git-conventions/
 ├── scripts/
-│   └── init.sh               # Setup script for local project initialization (temporary)
+│   ├── init.sh               # Setup script (bash)
+│   └── init.ps1              # Setup script (PowerShell)
+├── CLAUDE.md             # Claude Code entry point template
 ├── README.md
 └── LICENSE
 ```

@@ -54,13 +54,34 @@ if (-not (Test-Path $TemplatesDir -PathType Container)) {
     exit 1
 }
 
-$TargetPath = Join-Path $RepoRoot 'target'
+$DefaultTargetPath = Join-Path $RepoRoot 'target'
+$TargetPathInput = Read-Host "Target path [$DefaultTargetPath]"
+if ([string]::IsNullOrWhiteSpace($TargetPathInput)) {
+    $TargetPath = $DefaultTargetPath
+} else {
+    $TargetPath = $TargetPathInput
+}
+
+# Optional add-on tools (Copilot/VS Code is always deployed)
+$opencodeInput = Read-Host "Also set up OpenCode? [Y/N]"
+$DeployOpenCode = $opencodeInput -match '^[Yy]$'
+
+$claudeInput = Read-Host "Also set up Claude Code? [Y/N]"
+$DeployClaude = $claudeInput -match '^[Yy]$'
 
 Write-Host "Zenflow initialization"
-Write-Host "The following will be generated inside the target folder ($TargetPath):"
+Write-Host "Target path: $TargetPath"
+Write-Host "Tools:"
+Write-Host "  ✓ GitHub Copilot (VS Code) — always installed"
+if ($DeployOpenCode) { Write-Host "  ✓ OpenCode" }
+if ($DeployClaude) { Write-Host "  ✓ Claude Code" }
+Write-Host ""
+Write-Host "The following will be generated:"
 Write-Host "  - .github/agents/        (agent definitions)"
 Write-Host "  - .github/instructions/  (instruction files)"
-Write-Host "  - .github/guidelines/    (architecture, review, and conventions templates)"
+Write-Host "  - .github/guidelines/    (architecture, review, and conventions)"
+if ($DeployOpenCode) { Write-Host "  - .opencode/skills/      (OpenCode skill definitions)" }
+if ($DeployClaude) { Write-Host "  - .claude/skills/        (Claude Code skill definitions)" }
 Write-Host ""
 Write-Host "Press any key to continue..."
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -70,6 +91,7 @@ $TargetAgentsDir      = Join-Path $TargetGithubDir 'agents'
 $TargetInstructionsDir = Join-Path $TargetGithubDir 'instructions'
 $TargetGuidelinesDir  = Join-Path $TargetGithubDir 'guidelines'
 
+# Always create .github directories (Copilot/VS Code is always deployed)
 New-Item -ItemType Directory -Force -Path $TargetAgentsDir       | Out-Null
 New-Item -ItemType Directory -Force -Path $TargetInstructionsDir | Out-Null
 New-Item -ItemType Directory -Force -Path $TargetGuidelinesDir   | Out-Null
@@ -122,16 +144,35 @@ function Copy-RequiredFile {
     Copy-Item $Src $Dst
 }
 
+function Copy-AgentsAsSkills {
+    param(
+        [string]$TargetDir
+    )
+
+    New-Item -ItemType Directory -Force -Path $TargetDir | Out-Null
+
+    Get-ChildItem (Join-Path $AgentsSrcDir '*.md') | ForEach-Object {
+        $agentName = $_.BaseName -replace '\.agent', ''
+        $skillDir = Join-Path $TargetDir $agentName
+        New-Item -ItemType Directory -Force -Path $skillDir | Out-Null
+        Copy-Item $_.FullName (Join-Path $skillDir 'SKILL.md')
+    }
+}
+
+# 3. Stack choices
 $BackendArchFile  = Choose-BackendStack
 $FrontendArchFile = Choose-FrontendStack
 
 Write-Host ""
-$includeConventions = Read-Host "Include git conventions template as .github/guidelines/conventions.md? [Y/n]"
+$includeConventions = Read-Host "Include git conventions template as .github/guidelines/conventions.md? [Y/N]"
 if ([string]::IsNullOrWhiteSpace($includeConventions)) {
     $includeConventions = 'Y'
 }
 
 Write-Host ""
+
+# Deploy Copilot/VS Code (always)
+Write-Host "Deploying GitHub Copilot (VS Code) setup..."
 Write-Host "Copying agents..."
 Copy-Item (Join-Path $AgentsSrcDir '*.md') $TargetAgentsDir
 
@@ -145,7 +186,7 @@ Copy-RequiredFile (Join-Path $TemplatesDir 'review'   'backend.md')      (Join-P
 Copy-RequiredFile (Join-Path $TemplatesDir 'review'   'frontend.md')     (Join-Path $TargetGuidelinesDir 'review-frontend.md')
 
 switch ($includeConventions) {
-    { $_ -in 'Y','y' } {
+    { $_ -in 'Y','y','' } {
         Copy-RequiredFile (Join-Path $TemplatesDir 'git-conventions' 'default.md') (Join-Path $TargetGuidelinesDir 'conventions.md')
         $ConventionsMsg = "Included conventions.md"
     }
@@ -158,10 +199,50 @@ switch ($includeConventions) {
     }
 }
 
+# Deploy OpenCode
+if ($DeployOpenCode) {
+    Write-Host "Deploying OpenCode setup..."
+    $TargetOpenCodeDir = Join-Path $TargetPath '.opencode' 'skills'
+
+    # Create OpenCode skills from agent templates
+    Copy-AgentsAsSkills $TargetOpenCodeDir
+    Write-Host "Copied skills to $TargetOpenCodeDir"
+
+    # Copy AGENTS.md from template to target
+    $AgentsTemplate = Join-Path $RepoRoot 'templates' 'AGENTS.md'
+    $AgentsTarget = Join-Path $TargetPath 'AGENTS.md'
+    if (Test-Path $AgentsTemplate) {
+        Copy-Item $AgentsTemplate $AgentsTarget
+        Write-Host "Copied AGENTS.md to $TargetPath"
+    }
+    else {
+        Write-Warning "Warning: AGENTS.md template not found at $AgentsTemplate"
+    }
+}
+
+# Deploy Claude Code
+if ($DeployClaude) {
+    Write-Host "Deploying Claude Code setup..."
+    $TargetClaudeDir = Join-Path $TargetPath '.claude' 'skills'
+
+    # Create Claude skills from agent templates
+    Copy-AgentsAsSkills $TargetClaudeDir
+    Write-Host "Copied skills to $TargetClaudeDir"
+
+    # Copy CLAUDE.md from template to target
+    $ClaudeTemplate = Join-Path $RepoRoot 'templates' 'CLAUDE.md'
+    $ClaudeTarget = Join-Path $TargetPath 'CLAUDE.md'
+    if (Test-Path $ClaudeTemplate -PathType Leaf) {
+        Copy-Item $ClaudeTemplate $ClaudeTarget
+        Write-Host "Copied CLAUDE.md to $TargetPath"
+    } else {
+        Write-Warning "Warning: CLAUDE.md template not found at $ClaudeTemplate"
+    }
+}
+
 Write-Host ""
 Write-Host "Initialization complete."
 Write-Host "Target: $TargetPath"
-Write-Host "- Copied agents to $TargetAgentsDir"
-Write-Host "- Copied instructions to $TargetInstructionsDir"
-Write-Host "- Copied architecture/review guidelines to $TargetGuidelinesDir"
-Write-Host "- $ConventionsMsg"
+Write-Host "✓ GitHub Copilot (VS Code): .github/agents, instructions, and guidelines"
+if ($DeployOpenCode) { Write-Host "✓ OpenCode: .opencode/skills/ and AGENTS.md" }
+if ($DeployClaude) { Write-Host "✓ Claude Code: .claude/skills/ and CLAUDE.md" }

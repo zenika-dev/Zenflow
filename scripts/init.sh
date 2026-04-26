@@ -59,6 +59,7 @@ done
 DEFAULT_TARGET_PATH="${REPO_ROOT}/target"
 read -r -p "Target path [${DEFAULT_TARGET_PATH}]: " TARGET_PATH_INPUT
 TARGET_PATH="${TARGET_PATH_INPUT:-${DEFAULT_TARGET_PATH}}"
+TARGET_PATH="${TARGET_PATH%/}"
 
 # 2. Optional add-on tools (Copilot/VS Code is always deployed)
 read -r -p "Also set up OpenCode? [Y/N]: " opencode_input
@@ -157,6 +158,51 @@ echo
 read -r -p "Include git conventions template as .github/guidelines/conventions.md? [Y/N]: " INCLUDE_CONVENTIONS
 INCLUDE_CONVENTIONS="${INCLUDE_CONVENTIONS:-Y}"
 
+check_existing_files() {
+  local existing=()
+
+  for f in "${AGENTS_SRC_DIR}"/*.md; do
+    dst="${TARGET_AGENTS_DIR}/$(basename "$f")"
+    [[ -f "$dst" ]] && existing+=("$dst")
+  done
+
+  for f in "${INSTRUCTIONS_SRC_DIR}"/*.md; do
+    dst="${TARGET_INSTRUCTIONS_DIR}/$(basename "$f")"
+    [[ -f "$dst" ]] && existing+=("$dst")
+  done
+
+  for f in "${TARGET_GUIDELINES_DIR}"/*.md; do
+    [[ -f "$f" ]] && existing+=("$f")
+  done
+
+  if [[ "${DEPLOY_OPENCODE}" == "true" ]]; then
+    for f in "${AGENTS_SRC_DIR}"/*.md; do
+      agent_name=$(basename "$f" .md | sed 's/\.agent//')
+      dst="${TARGET_PATH}/.opencode/skills/${agent_name}/SKILL.md"
+      [[ -f "$dst" ]] && existing+=("$dst")
+    done
+    [[ -f "${TARGET_PATH}/AGENTS.md" ]] && existing+=("${TARGET_PATH}/AGENTS.md")
+  fi
+
+  if [[ "${DEPLOY_CLAUDE}" == "true" ]]; then
+    for f in "${AGENTS_SRC_DIR}"/*.md; do
+      agent_name=$(basename "$f" .md | sed 's/\.agent//')
+      dst="${TARGET_PATH}/.claude/skills/${agent_name}/SKILL.md"
+      [[ -f "$dst" ]] && existing+=("$dst")
+    done
+    [[ -f "${TARGET_PATH}/CLAUDE.md" ]] && existing+=("${TARGET_PATH}/CLAUDE.md")
+  fi
+
+  if [[ ${#existing[@]} -gt 0 ]]; then
+    echo "Error: the following files already exist and would be overwritten:" >&2
+    for f in "${existing[@]}"; do
+      echo "  $f" >&2
+    done
+    echo "Aborting. Remove or rename these files and re-run." >&2
+    exit 1
+  fi
+}
+
 copy_file() {
   local src="$1"
   local dst="$2"
@@ -179,6 +225,8 @@ copy_agents_as_skills() {
     cp "$agent_file" "${skill_dir}/SKILL.md"
   done
 }
+
+check_existing_files
 
 echo
 

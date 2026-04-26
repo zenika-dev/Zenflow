@@ -155,6 +155,51 @@ function Get-FrontendDocumentationFile {
     }
 }
 
+function Test-ExistingFiles {
+    $existing = @()
+
+    Get-ChildItem (Join-Path $AgentsSrcDir '*.md') | ForEach-Object {
+        $dst = Join-Path $TargetAgentsDir $_.Name
+        if (Test-Path $dst -PathType Leaf) { $existing += $dst }
+    }
+
+    Get-ChildItem (Join-Path $InstructionsSrcDir '*.md') | ForEach-Object {
+        $dst = Join-Path $TargetInstructionsDir $_.Name
+        if (Test-Path $dst -PathType Leaf) { $existing += $dst }
+    }
+
+    Get-ChildItem (Join-Path $TargetGuidelinesDir '*.md') -ErrorAction SilentlyContinue | ForEach-Object {
+        if (Test-Path $_.FullName -PathType Leaf) { $existing += $_.FullName }
+    }
+
+    if ($DeployOpenCode) {
+        Get-ChildItem (Join-Path $AgentsSrcDir '*.md') | ForEach-Object {
+            $agentName = $_.BaseName -replace '\.agent', ''
+            $dst = Join-Path $TargetPath '.opencode' 'skills' $agentName 'SKILL.md'
+            if (Test-Path $dst -PathType Leaf) { $existing += $dst }
+        }
+        $dst = Join-Path $TargetPath 'AGENTS.md'
+        if (Test-Path $dst -PathType Leaf) { $existing += $dst }
+    }
+
+    if ($DeployClaude) {
+        Get-ChildItem (Join-Path $AgentsSrcDir '*.md') | ForEach-Object {
+            $agentName = $_.BaseName -replace '\.agent', ''
+            $dst = Join-Path $TargetPath '.claude' 'skills' $agentName 'SKILL.md'
+            if (Test-Path $dst -PathType Leaf) { $existing += $dst }
+        }
+        $dst = Join-Path $TargetPath 'CLAUDE.md'
+        if (Test-Path $dst -PathType Leaf) { $existing += $dst }
+    }
+
+    if ($existing.Count -gt 0) {
+        Write-Host "Error: the following files already exist and would be overwritten:" -ForegroundColor Red
+        $existing | ForEach-Object { Write-Host "  $_" -ForegroundColor Red }
+        Write-Host "Aborting. Remove or rename these files and re-run." -ForegroundColor Red
+        exit 1
+    }
+}
+
 function Copy-RequiredFile {
     param(
         [string]$Src,
@@ -193,6 +238,8 @@ $includeConventions = Read-Host "Include git conventions template as .github/gui
 if ([string]::IsNullOrWhiteSpace($includeConventions)) {
     $includeConventions = 'Y'
 }
+
+Test-ExistingFiles
 
 Write-Host ""
 

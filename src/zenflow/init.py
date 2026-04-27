@@ -36,6 +36,8 @@ def make_env(repo_root: str, agent_name: str | None = None) -> Environment:
         loader=FileSystemLoader(search_paths),
         undefined=StrictUndefined,
         keep_trailing_newline=True,
+        trim_blocks=True,
+        lstrip_blocks=True,
     )
 
 

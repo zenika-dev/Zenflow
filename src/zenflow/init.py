@@ -237,10 +237,12 @@ def deploy_guidelines_to_github(
         dst = os.path.join(target_guidelines_dir, dst_filename)
         assemble_guideline(src_template, dst, env, ctx)
 
-    deploy("backend", backend_arch_file, "architecture-backend.md")
-    deploy("frontend", frontend_arch_file, "architecture-frontend.md")
-    deploy("review", "backend.md.j2", "review-backend.md")
-    deploy("review", "frontend.md.j2", "review-frontend.md")
+    if backend_arch_file:
+        deploy("backend", backend_arch_file, "architecture-backend.md")
+        deploy("review", "backend.md.j2", "review-backend.md")
+    if frontend_arch_file:
+        deploy("frontend", frontend_arch_file, "architecture-frontend.md")
+        deploy("review", "frontend.md.j2", "review-frontend.md")
 
     if backend_doc_file:
         deploy("documentation", backend_doc_file, "documentation-backend.md")
@@ -291,10 +293,12 @@ def deploy_guidelines_to_skills(
         dst = os.path.join(target_skills_dir, skill_name, "references", dst_filename)
         assemble_guideline(src_template, dst, env, ctx)
 
-    deploy("backend", backend_arch_file, "backend", "architecture.md")
-    deploy("frontend", frontend_arch_file, "frontend", "architecture.md")
-    deploy("review", "backend.md.j2", "reviewer", "review-backend.md")
-    deploy("review", "frontend.md.j2", "reviewer", "review-frontend.md")
+    if backend_arch_file:
+        deploy("backend", backend_arch_file, "backend", "architecture.md")
+        deploy("review", "backend.md.j2", "reviewer", "review-backend.md")
+    if frontend_arch_file:
+        deploy("frontend", frontend_arch_file, "frontend", "architecture.md")
+        deploy("review", "frontend.md.j2", "reviewer", "review-frontend.md")
 
     if backend_doc_file:
         deploy("documentation", backend_doc_file, "documentation", "documentation-backend.md")
@@ -436,8 +440,11 @@ def main() -> None:
     input("Press any key to continue...")
     print()
 
-    backend_arch_file, backend_doc_file = choose_backend_stack()
-    frontend_arch_file, frontend_doc_file = choose_frontend_stack()
+    include_backend = input("Include backend guidelines? [Y/N]: ").strip().lower() == "y"
+    include_frontend = input("Include frontend guidelines? [Y/N]: ").strip().lower() == "y"
+
+    backend_arch_file, backend_doc_file = choose_backend_stack() if include_backend else ("", "")
+    frontend_arch_file, frontend_doc_file = choose_frontend_stack() if include_frontend else ("", "")
 
     print()
     include_conventions_input = (
@@ -458,8 +465,8 @@ def main() -> None:
         )
         sys.exit(1)
 
-    backend_doc_msg = "Included backend documentation template" if backend_doc_file else "Skipped backend documentation template"
-    frontend_doc_msg = "Included frontend documentation template" if frontend_doc_file else "Skipped frontend documentation template"
+    backend_doc_msg = "Included backend documentation template" if backend_doc_file else ("Skipped backend documentation template" if include_backend else None)
+    frontend_doc_msg = "Included frontend documentation template" if frontend_doc_file else ("Skipped frontend documentation template" if include_frontend else None)
 
     print()
 
@@ -542,8 +549,10 @@ def main() -> None:
         print("\u2713 OpenCode: .opencode/skills/ (with references/) and AGENTS.md")
     if deploy_claude:
         print("\u2713 Claude Code: .claude/skills/ (with references/) and CLAUDE.md")
-    print(f"- {backend_doc_msg}")
-    print(f"- {frontend_doc_msg}")
+    if backend_doc_msg:
+        print(f"- {backend_doc_msg}")
+    if frontend_doc_msg:
+        print(f"- {frontend_doc_msg}")
     print(f"- {conventions_msg}")
 
 

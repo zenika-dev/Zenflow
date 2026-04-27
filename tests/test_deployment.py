@@ -171,6 +171,48 @@ def test_deploy_guidelines_to_github_omits_optional_when_skipped(
     assert "documentation-frontend.md" not in produced
 
 
+def test_deploy_guidelines_to_github_omits_backend_when_skipped(
+    repo_root: str, tmp_target: Path
+) -> None:
+    """deploy_guidelines_to_github must omit backend files when arch file is empty."""
+    templates_dir = os.path.join(repo_root, "templates", "guidelines")
+    guidelines_dir = tmp_target / ".github" / "guidelines"
+
+    deploy_guidelines_to_github(
+        templates_dir, str(guidelines_dir), repo_root,
+        backend_arch_file="", frontend_arch_file=FRONTEND_ARCH,
+        backend_doc_file="", frontend_doc_file="",
+        include_conventions=False,
+    )
+
+    produced = {f.name for f in guidelines_dir.glob("*.md")}
+    assert "architecture-backend.md" not in produced
+    assert "review-backend.md" not in produced
+    assert "architecture-frontend.md" in produced
+    assert "review-frontend.md" in produced
+
+
+def test_deploy_guidelines_to_github_omits_frontend_when_skipped(
+    repo_root: str, tmp_target: Path
+) -> None:
+    """deploy_guidelines_to_github must omit frontend files when arch file is empty."""
+    templates_dir = os.path.join(repo_root, "templates", "guidelines")
+    guidelines_dir = tmp_target / ".github" / "guidelines"
+
+    deploy_guidelines_to_github(
+        templates_dir, str(guidelines_dir), repo_root,
+        backend_arch_file=BACKEND_ARCH, frontend_arch_file="",
+        backend_doc_file="", frontend_doc_file="",
+        include_conventions=False,
+    )
+
+    produced = {f.name for f in guidelines_dir.glob("*.md")}
+    assert "architecture-frontend.md" not in produced
+    assert "review-frontend.md" not in produced
+    assert "architecture-backend.md" in produced
+    assert "review-backend.md" in produced
+
+
 def test_deploy_guidelines_to_github_no_jinja_tags(
     repo_root: str, tmp_target: Path
 ) -> None:
@@ -287,3 +329,53 @@ def test_deploy_guidelines_to_skills_no_jinja_tags(
         content = ref_file.read_text()
         assert "{{" not in content, f"Unrendered {{{{ in {ref_file.name}"
         assert "{%" not in content, f"Unrendered {{%  in {ref_file.name}"
+
+
+@pytest.mark.parametrize("tool,base", [
+    ("opencode", ".opencode/skills"),
+    ("claude",   ".claude/skills"),
+])
+def test_deploy_guidelines_to_skills_omits_backend_when_skipped(
+    repo_root: str, tmp_target: Path, tool: str, base: str
+) -> None:
+    """deploy_guidelines_to_skills must omit backend references when arch file is empty."""
+    templates_dir = os.path.join(repo_root, "templates", "guidelines")
+    skills_dir = tmp_target / base.lstrip("./").replace("/", os.sep)
+
+    deploy_guidelines_to_skills(
+        templates_dir, str(skills_dir), repo_root,
+        backend_arch_file="", frontend_arch_file=FRONTEND_ARCH,
+        backend_doc_file="", frontend_doc_file="",
+        include_conventions=False,
+        tool=tool,
+    )
+
+    assert not (skills_dir / "backend" / "references" / "architecture.md").exists()
+    assert not (skills_dir / "reviewer" / "references" / "review-backend.md").exists()
+    assert (skills_dir / "frontend" / "references" / "architecture.md").exists()
+    assert (skills_dir / "reviewer" / "references" / "review-frontend.md").exists()
+
+
+@pytest.mark.parametrize("tool,base", [
+    ("opencode", ".opencode/skills"),
+    ("claude",   ".claude/skills"),
+])
+def test_deploy_guidelines_to_skills_omits_frontend_when_skipped(
+    repo_root: str, tmp_target: Path, tool: str, base: str
+) -> None:
+    """deploy_guidelines_to_skills must omit frontend references when arch file is empty."""
+    templates_dir = os.path.join(repo_root, "templates", "guidelines")
+    skills_dir = tmp_target / base.lstrip("./").replace("/", os.sep)
+
+    deploy_guidelines_to_skills(
+        templates_dir, str(skills_dir), repo_root,
+        backend_arch_file=BACKEND_ARCH, frontend_arch_file="",
+        backend_doc_file="", frontend_doc_file="",
+        include_conventions=False,
+        tool=tool,
+    )
+
+    assert not (skills_dir / "frontend" / "references" / "architecture.md").exists()
+    assert not (skills_dir / "reviewer" / "references" / "review-frontend.md").exists()
+    assert (skills_dir / "backend" / "references" / "architecture.md").exists()
+    assert (skills_dir / "reviewer" / "references" / "review-backend.md").exists()

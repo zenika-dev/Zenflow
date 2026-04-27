@@ -1,74 +1,45 @@
 # Zenflow Template Library
 
-This directory contains reusable guideline templates for different backend and frontend stacks.
+This directory contains reusable guideline templates for different agents and skills.
 
 Purpose:
-- keep core agents stable and stack-agnostic
+- keep core agents/skills stable, stack-agnostic and tool-agnostic
 - keep stack-specific behavior into copyable guideline files
 - make repository bootstrapping predictable for new teams
 
-## Single Source of Truth
+## Folders
+1. Agents
 
-Architecture templates (backend and frontend) contain **all rules** for planning, implementation, and review. They are the single source of truth.
+These templates will be initialized as either Agents for Copilot or Skills for Claude/Open Code.
+
+2. Guidelines
+
+These files are copied to `.github/guidelines` for Copilot and in each skill's `references` folder for Claude/Open Code.
+
+Architecture templates backend/frontend in `guidelines` contain **all rules** for planning, implementation, and review. They are the single source of truth.
 
 Review templates are **process documents only** — they define the review scope and instruct the reviewer to audit against the architecture guideline. They do not contain substantive stack related rules. This ensures rules are never duplicated and cannot drift between implementation and review.
+
+3. Instructions
+
+This is only used by Copilot.
+
+4. Partials
+
+Partial templates are shared across different stacks and involve formatting of output, checklists, and handover. You can define your own partials that can be loaded automatically by the init script into the actual agents/skills templates. See files in `guidelines/backend/` for an example at the end of each file.
+
+## AGENTS.md
+For Claude Code and Open Code, this will be copied to either CLAUDE or AGENTS.md. As this file will be loaded for every session, it is deliberately lightweight. Since skills are handled natively by both tools, there is no need to specify where to load the skills from.
+
+Editing this file will allow your team's tool to have these instructions for **every session**.
+
 
 ## How To Use
 See README.md at project root for deployment via script.
 
-### Manual Setup (if not using init script)
-
-1. Choose one backend template and one frontend template.
-2. Copy the selected architecture templates and both review protocol templates into `.github/guidelines/`.
-3. Rename them to match the expected file structure:
-   - backend architecture → `.github/guidelines/architecture-backend.md`
-   - frontend architecture → `.github/guidelines/architecture-frontend.md`
-   - backend review → `.github/guidelines/review-backend.md`
-   - frontend review → `.github/guidelines/review-frontend.md`
-   - (optional) conventions → `.github/guidelines/conventions.md`
-   - (opitonal) stack specific documentation → `.github/guidelines/documentation-backend.md` (or frontend)
-4. Edit each copied file with project-specific details.
-
-**Minimum required files:**
-- `.github/guidelines/architecture-backend.md`
-- `.github/guidelines/architecture-frontend.md`
-- `.github/guidelines/review-backend.md`
-- `.github/guidelines/review-frontend.md`
-
-## Structure
-
-- `guidelines/backend/`
-  - stack-specific backend architecture templates
-- `guidelines/frontend/`
-  - stack-specific frontend architecture templates
-- `guidelines/review/`
-  - stack-agnostic review protocol templates (scope and process only; rules live in architecture templates)
-- `guidelines/git-conventions/`
-  - branch and commit conventions templates
-
-## Available Templates
-
-Backend architecture:
-- `guidelines/backend/java-spring-boot.md`
-- `guidelines/backend/golang-gin.md`
-- `guidelines/backend/python-fastapi.md`
-
-Frontend architecture:
-- `guidelines/frontend/react-typescript.md`
-- `guidelines/frontend/nextjs-app-router.md`
-
-Review protocol templates:
-- `guidelines/review/backend.md`
-- `guidelines/review/frontend.md`
-
-Conventions:
-- `guidelines/git-conventions/default.md`
-
-Documentation:
-- `guidelines/documentation/java-spring-boot.md`
-- `guidelines/documentation/react-typescript.md`
+To modify the script logic, you can update `src/zenflow/init.py`, for example, to add a language option to the initialisation process.
 
 ## Notes
 
 - Keep template files generic enough to reuse across projects.
-- Keep project-specific decisions in `.github/guidelines/`, not in templates.
+- After cloning, modify files in `.github/guidelines` or `skills/<skill name>/references` as necessary for the project's requirements.

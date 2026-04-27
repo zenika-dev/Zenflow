@@ -534,13 +534,13 @@ def main() -> None:
         )
         print(f"Copied skills to {target_claude_dir}")
 
-        claude_template = os.path.join(repo_root, "templates", "CLAUDE.md")
+        claude_template = os.path.join(repo_root, "templates", "AGENTS.md")
         claude_target = os.path.join(target_path, "CLAUDE.md")
         if os.path.isfile(claude_template):
             shutil.copy(claude_template, claude_target)
-            print(f"Copied CLAUDE.md to {target_path}")
+            print(f"Copied AGENTS.md to {target_path}")
         else:
-            print(f"Warning: CLAUDE.md template not found at {claude_template}", file=sys.stderr)
+            print(f"Warning: AGENTS.md template not found at {claude_template}", file=sys.stderr)
 
     print()
     print("Initialization complete.")

@@ -11,6 +11,7 @@ To extend Zenflow with team specific guidelines for your own use:
 
 For more details on how to extend Zenflow, refer to the relevant section below.
 
+
 ## Quick Start
 
 To install Zenflow in an existing repository, install dependencies with [uv](https://docs.astral.sh/uv/) and run the init script:
@@ -26,6 +27,8 @@ Or without installing (uv will resolve on the fly):
 uv run --with jinja2 python src/zenflow/init.py
 ```
 
+! Note: if you have an existing Agent or Skill with the same name configured globally or locally in your project directory, it will be overloaded in the project directory when running this script.
+
 Follow the prompts to:
 1. Enter the target repository folder path.
 2. Choose which tools to set up (GitHub Copilot, OpenCode, Claude Code — any combination).
@@ -36,18 +39,16 @@ Follow the prompts to:
 ### What the script installs
 After running the script, the target repository will have:
 
-- **.github/agents/**: Agent definitions for Copilot
-- **.github/instructions/**: Shared cross-agent behavior rules
-- **.github/guidelines/**: Stack-specific architecture, review, and conventions — the single source of truth for GitHub Copilot
-- **.opencode/skills/** and **AGENTS.md** (if OpenCode selected): Skills mirroring the agent structure; guideline files embedded in each skill's `references/` subfolder
-- **.claude/skills/** and **CLAUDE.md** (if Claude Code selected): Skills and entry point for Claude Code; guideline files embedded in each skill's `references/` subfolder
+- **.github/agents/**, **.github/instructions/**, **.github/guidelines/** (if GitHub Copilot selected): Agents and guideline files, instructions to configure agents.
+- **.opencode/skills/** and **AGENTS.md** (if OpenCode selected): Skills, guideline files embedded in each skill's `references/` subfolder
+- **.claude/skills/** and **CLAUDE.md** (if Claude Code selected): Skills, guideline files embedded in each skill's `references/` subfolder
 
 ### Recommended Supporting Files
 For best results, ensure the target project provides additional context:
 
 - **README.md**: The Documentation agent updates the README, so it helps if the project already has a clear structure and an API or usage section to extend.
 - **docs/plans/**: The Backend and Frontend agents save planning artifacts here for user review before implementation. Create this directory up front to keep outputs consistent.
-- **.github/copilot-instructions.md**: The Documentation agent will load this if it exists. It can be useful for project-specific context, terminology, and documentation expectations.
+- **.github/copilot-instructions.md** (for Copilot only): The Documentation agent will load this if it exists. It can be useful for project-specific context, terminology, and documentation expectations.
 
 
 ## Workflows
@@ -56,9 +57,9 @@ For best results, ensure the target project provides additional context:
 
 This workflow delivers a complete feature end-to-end, from branch creation to a merged pull request. 
 
-When using GitHub Copilot, a top-level **Orchestrator** agent breaks the feature request into tasks and delegates each one to a specialist sub-agent in sequence. Subagents can also be loaded directly if preferable.
+When using GitHub Copilot, a top-level **Orchestrator** agent breaks the feature request into tasks. Then, the agent delegates each one to a specialist sub-agent in sequence. Subagents can also be loaded directly if preferable.
 
-When using OpenCode or ClaudeCode, each agent below is loaded as a Skill instead.
+When using OpenCode or ClaudeCode, each agent below is loaded as a Skill instead. Suggested workflow will be included at the end of the task performed by each skill.
 
 | Step | Agent | Responsibility |
 |------|-------|----------------|
@@ -72,11 +73,12 @@ When using OpenCode or ClaudeCode, each agent below is loaded as a Skill instead
 | 7 | Git | Stages changes, writes a conventional commit, and prepares a PR description |
 | 8 | Orchestrator | Presents a final summary of what was built, files changed, and outstanding items |
 
+For a detailed flow diagram, see [docs/diagrams/fullstack-newfeature.md](docs/diagrams/fullstack-newfeature.md).
 
 ## Extending and Customising Zenflow
 ### How the Guidelines Work
 
-The generated `.github/guidelines/` directory contains **all rules** for GitHub Copilot. For OpenCode and Claude Code, the same content is placed inside each skill's `references/` subfolder so agents can load it without crossing tool boundaries:
+For GitHub Copilot, the generated `.github/guidelines/` directory contains all rules. For OpenCode and Claude Code, the same content is placed inside each skill's `references/` subfolder so agents can load it without crossing tool boundaries:
 
 - **architecture-backend.md**: Backend framework conventions, package structure, patterns, validation rules, database expectations, and testing strategy.
 - **architecture-frontend.md**: Frontend framework conventions, component structure, API client patterns, routing, styling, accessibility, and testing strategy.
@@ -85,86 +87,20 @@ The generated `.github/guidelines/` directory contains **all rules** for GitHub 
 
 The more explicit these files are, the more consistently all tools can follow your standards.
 
-For a detailed flow diagram, see [docs/diagrams/fullstack-newfeature.md](docs/diagrams/fullstack-newfeature.md).
-
 ### Template Library
 
 Zenflow includes a stack template library under `templates/`.
 
-The templates exist to keep core agent behavior stable while moving stack-specific architecture and review conventions into reusable files.
-
 See [templates/README.md](templates/README.md) for available templates and structure, as well as how to extend this for your own use.
-
-### Partial System
-
-Agent and guideline source files are [Jinja2](https://jinja.palletsprojects.com/) templates (`.md.j2`). At init time, `src/zenflow/init.py` renders each template with a tool-specific context before writing assembled files to the target.
-
-**Guideline path variables** — each tool gets its own `guidelines` context so file references resolve to the correct location:
-
-| Variable | Copilot | OpenCode | Claude Code |
-|---|---|---|---|
-| `{{ guidelines.backend_arch }}` | `.github/guidelines/architecture-backend.md` | `.opencode/skills/backend/references/architecture.md` | `.claude/skills/backend/references/architecture.md` |
-| `{{ guidelines.review_backend }}` | `.github/guidelines/review-backend.md` | `.opencode/skills/reviewer/references/review-backend.md` | `.claude/skills/reviewer/references/review-backend.md` |
-| `{{ guidelines.conventions }}` | `.github/guidelines/conventions.md` | `.opencode/skills/git/references/conventions.md` | `.claude/skills/git/references/conventions.md` |
-
-**Partial includes** use standard Jinja2 syntax:
-
-```
-{% include 'partials/backend-handover.md.j2' %}
-```
-
-**Tool-specific partial overrides** — place a file at `templates/skills/<agent-name>/<partial-filename>` to override a partial for skill output only. Jinja2's `FileSystemLoader` checks the agent override directory before falling back to the canonical partial:
-
-```
-templates/skills/reviewer/review-report.md.j2   ← used in skill output
-templates/partials/review-report.md.j2           ← canonical fallback
-```
 
 
 ## Project Structure
 
 ```
 Zenflow/
-├── .github/
-│   └── (empty — no source files)
-├── docs/
-│   └── diagrams/             # Explanation of Zenflow orchestration
-├── src/
-│   └── zenflow/
-│       └── init.py           # Setup script (Jinja2-based rendering)
-├── templates/
-│   ├── agents/               # Source-of-truth agent definitions (.md.j2)
-│   │   ├── backend.agent.md.j2
-│   │   ├── frontend.agent.md.j2
-│   │   ├── orchestrator.agent.md.j2
-│   │   ├── reviewer.agent.md.j2
-│   │   ├── documentation.agent.md.j2
-│   │   └── git.agent.md.j2
-│   ├── instructions/         # Shared cross-agent behavior rules
-│   │   └── agent-questions.instructions.md
-│   ├── partials/             # Extracted output format sections (.md.j2)
-│   │   ├── backend-plan-format.md.j2
-│   │   ├── backend-checklist.md.j2
-│   │   ├── backend-handover.md.j2
-│   │   ├── frontend-plan-format.md.j2
-│   │   ├── frontend-checklist.md.j2
-│   │   ├── frontend-handover.md.j2
-│   │   └── review-report.md.j2
-│   ├── skills/               # Tool-specific partial overrides
-│   │   └── reviewer/
-│   │       └── review-report.md.j2
-│   ├── AGENTS.md             # OpenCode entry point template
-│   ├── CLAUDE.md             # Claude Code entry point template
-│   └── guidelines/           # Reusable stack-specific templates (.md.j2)
-│       ├── backend/
-│       ├── documentation/
-│       ├── frontend/
-│       ├── review/
-│       └── git-conventions/
-├── pyproject.toml            # uv project definition (jinja2 dependency)
-├── target/                   # Default output path when running zenflow-init
-├── README.md
-└── LICENSE
+├── docs/             # Explanation of Zenflow orchestration
+├── src/              # Setup script (Jinja2-based rendering)
+├── templates/        # Reusable templates
 ```
 
 

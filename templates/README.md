@@ -34,12 +34,32 @@ For Claude Code and Open Code, this will be copied to either CLAUDE or AGENTS.md
 Editing this file will allow your team's tool to have these instructions for **every session**.
 
 
-## How To Use
-See README.md at project root for deployment via script.
+## Partial System
 
-To modify the script logic, you can update `src/zenflow/init.py`, for example, to add a language option to the initialisation process.
+Agent and guideline source files are [Jinja2](https://jinja.palletsprojects.com/) templates (`.md.j2`). At init time, `src/zenflow/init.py` renders each template with a tool-specific context before writing assembled files to the target.
+
+**Guideline path variables** — each tool gets its own `guidelines` context so file references resolve to the correct location:
+
+| Variable | Copilot | OpenCode | Claude Code |
+|---|---|---|---|
+| `{{ guidelines.backend_arch }}` | `.github/guidelines/architecture-backend.md` | `.opencode/skills/backend/references/architecture.md` | `.claude/skills/backend/references/architecture.md` |
+| `{{ guidelines.review_backend }}` | `.github/guidelines/review-backend.md` | `.opencode/skills/reviewer/references/review-backend.md` | `.claude/skills/reviewer/references/review-backend.md` |
+| `{{ guidelines.conventions }}` | `.github/guidelines/conventions.md` | `.opencode/skills/git/references/conventions.md` | `.claude/skills/git/references/conventions.md` |
+
+**Partial includes** use standard Jinja2 syntax:
+
+```
+{% include 'partials/backend-handover.md.j2' %}
+```
+
+**Tool-specific partial overrides** — place a file at `templates/skills/<agent-name>/<partial-filename>` to override a partial for skill output only. Jinja2's `FileSystemLoader` checks the agent override directory before falling back to the canonical partial:
+
+```
+templates/skills/reviewer/review-report.md.j2   ← used in skill output
+templates/partials/review-report.md.j2           ← canonical fallback
+```
 
 ## Notes
 
 - Keep template files generic enough to reuse across projects.
-- After cloning, modify files in `.github/guidelines` or `skills/<skill name>/references` as necessary for the project's requirements.
+- After cloning into a project for use, modify files in `.github/guidelines` or `skills/<skill name>/references` as necessary for the project's requirements.

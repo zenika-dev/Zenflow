@@ -106,6 +106,33 @@ def test_copilot_agent_has_no_next_steps(repo_root: str, agent: str) -> None:
 
 
 # ---------------------------------------------------------------------------
+# tools / user-invocable only for Copilot
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("agent", ALL_AGENTS)
+def test_copilot_agent_has_tools_and_user_invocable(repo_root: str, agent: str) -> None:
+    """Copilot agent output must include argument-hint, tools: and user-invocable: frontmatter."""
+    from zenflow.init import make_env
+    env = make_env(repo_root, agent_name=agent)
+    result = _render_agent(env, agent, "copilot", skill_mode=False)
+    assert "argument-hint:" in result
+    assert "tools:" in result
+    assert "user-invocable:" in result
+
+
+@pytest.mark.parametrize("agent", ALL_AGENTS)
+@pytest.mark.parametrize("tool", ["opencode", "claude"])
+def test_skill_agent_has_no_tools_or_user_invocable(repo_root: str, agent: str, tool: str) -> None:
+    """Skill agent output must not include argument-hint, tools: or user-invocable: frontmatter."""
+    from zenflow.init import make_env
+    env = make_env(repo_root, agent_name=agent)
+    result = _render_agent(env, agent, tool, skill_mode=True)
+    assert "argument-hint:" not in result
+    assert "tools:" not in result
+    assert "user-invocable:" not in result
+
+
+# ---------------------------------------------------------------------------
 # Guideline paths resolve to the correct tool-specific values
 # ---------------------------------------------------------------------------
 

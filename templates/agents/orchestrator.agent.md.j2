@@ -4,11 +4,11 @@
 ---
 name: Orchestrator
 description: Orchestrates full-stack feature delivery — calls Backend, Frontend, Docs, Reviewer, Git as sub-agents
+{% if not skill_mode %}
 argument-hint: Describe the feature to build (e.g. "Build a user feedback form with POST /api/feedback endpoint")
 tools: [agent, read/readFile, agent/runSubagent, agent, vscode/askQuestions]
 agents: [Backend, Frontend, Documentation, Reviewer, Git]
 user-invocable: true
-{% if not skill_mode %}
 handoffs:
 {% for h in handoffs %}
   - label: "{{ h.label }}"

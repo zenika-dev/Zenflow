@@ -7,10 +7,10 @@
 ---
 name: Reviewer
 description: Security and quality auditor — checks for bugs, vulnerabilities, and standards violations
+{% if not skill_mode %}
 argument-hint: Pass the files or Handover blocks to review (e.g. "review backend handover" or "review FeedbackController.java for security")
 tools: [search/textSearch, read/readFile, execute/runInTerminal, execute/runTests, vscode/askQuestions]
 user-invocable: true
-{% if not skill_mode %}
 handoffs:
 {% for h in handoffs %}
   - label: "{{ h.label }}"

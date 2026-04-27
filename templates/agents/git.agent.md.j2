@@ -5,10 +5,10 @@
 ---
 name: Git
 description: Git workflow agent — creates branches for features/Jira tickets, stages files, writes conventional commits, and prepares PR descriptions
+{% if not skill_mode %}
 argument-hint: Provide a Jira ticket or feature name to branch (e.g. "PROJ-123 feedback form"), or say "commit" to finalise work in progress
 tools: [execute, read, agent, search, vscode/askQuestions]
 user-invocable: true
-{% if not skill_mode %}
 handoffs:
 {% for h in handoffs %}
   - label: "{{ h.label }}"

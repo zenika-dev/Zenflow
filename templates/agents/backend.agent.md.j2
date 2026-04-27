@@ -5,10 +5,10 @@
 ---
 name: Backend
 description: Backend expert — implements APIs, services, repositories, and DB migrations for a feature
+{% if not skill_mode %}
 argument-hint: Describe what to build, optionally pass --existing to analyse before coding (e.g. "implement POST /api/feedback" or "implement user profile update --existing")
 tools: [execute/runInTerminal, execute/runTests, read/readFile, search/textSearch, search/fileSearch, search/listDirectory, edit/createFile, edit/editFiles, vscode/askQuestions]
 user-invocable: true
-{% if not skill_mode %}
 handoffs:
 {% for h in handoffs %}
   - label: "{{ h.label }}"

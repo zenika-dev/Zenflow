@@ -1,0 +1,160 @@
+"""Deployment helpers for agents and guidelines."""
+
+from __future__ import annotations
+
+import glob
+import os
+import re
+
+from zenflow.guidelines import guidelines_context
+from zenflow.rendering import assemble_agent, assemble_guideline, make_env
+
+
+def deploy_agents(
+    agents_src_dir: str,
+    target_agents_dir: str,
+    repo_root: str,
+    tool: str,
+    *,
+    skill_mode: bool = False,
+) -> None:
+    """Render and deploy all agent templates.
+
+    Args:
+        agents_src_dir: Directory containing *.agent.md.j2 source files.
+        target_agents_dir: Destination directory.
+        repo_root: Repository root path.
+        tool: Tool name for guidelines context ('copilot', 'opencode', 'claude').
+        skill_mode: If True, strips handoffs and appends Next Steps block.
+    """
+    os.makedirs(target_agents_dir, exist_ok=True)
+    context = {"guidelines": guidelines_context(tool)}
+
+    for agent_file in glob.glob(os.path.join(agents_src_dir, "*.md.j2")):
+        agent_name = re.sub(
+            r"\.agent$",
+            "",
+            os.path.splitext(os.path.splitext(os.path.basename(agent_file))[0])[0],
+        )
+        env = make_env(repo_root, agent_name=agent_name)
+        template_path = f"agents/{os.path.basename(agent_file)}"
+
+        if skill_mode:
+            skill_dir = os.path.join(target_agents_dir, agent_name)
+            dst = os.path.join(skill_dir, "SKILL.md")
+        else:
+            out_name = os.path.basename(agent_file)[: -len(".j2")]
+            dst = os.path.join(target_agents_dir, out_name)
+
+        assemble_agent(template_path, dst, env, context, skill_mode=skill_mode)
+
+
+def deploy_guidelines_to_github(
+    templates_dir: str,
+    target_guidelines_dir: str,
+    repo_root: str,
+    backend_arch_file: str,
+    frontend_arch_file: str,
+    backend_doc_file: str,
+    frontend_doc_file: str,
+    include_conventions: bool,
+) -> None:
+    """Deploy guideline files to .github/guidelines/ (GitHub Copilot).
+
+    Args:
+        templates_dir: Path to templates/guidelines/ (unused; kept for API compatibility).
+        target_guidelines_dir: Destination .github/guidelines/ path.
+        repo_root: Repository root path.
+        backend_arch_file: Selected backend architecture template filename.
+        frontend_arch_file: Selected frontend architecture template filename.
+        backend_doc_file: Selected backend documentation template filename (may be empty).
+        frontend_doc_file: Selected frontend documentation template filename (may be empty).
+        include_conventions: Whether to include git conventions.
+    """
+    env = make_env(repo_root)
+    ctx: dict[str, object] = {"guidelines": guidelines_context("copilot")}
+
+    def deploy(src_subdir: str, src_filename: str, dst_filename: str) -> None:
+        src_template = f"guidelines/{src_subdir}/{src_filename}"
+        dst = os.path.join(target_guidelines_dir, dst_filename)
+        assemble_guideline(src_template, dst, env, ctx)
+
+    if backend_arch_file:
+        deploy("backend", backend_arch_file, "architecture-backend.md")
+        deploy("review", "backend.md.j2", "review-backend.md")
+    if frontend_arch_file:
+        deploy("frontend", frontend_arch_file, "architecture-frontend.md")
+        deploy("review", "frontend.md.j2", "review-frontend.md")
+    if backend_doc_file:
+        deploy("documentation", backend_doc_file, "documentation-backend.md")
+    if frontend_doc_file:
+        deploy("documentation", frontend_doc_file, "documentation-frontend.md")
+    if include_conventions:
+        deploy("git-conventions", "default.md.j2", "conventions.md")
+
+
+def deploy_guidelines_to_skills(
+    templates_dir: str,
+    target_skills_dir: str,
+    repo_root: str,
+    backend_arch_file: str,
+    frontend_arch_file: str,
+    backend_doc_file: str,
+    frontend_doc_file: str,
+    include_conventions: bool,
+    tool: str,
+) -> None:
+    """Deploy guideline files into skill references/ subdirs (OpenCode / Claude Code).
+
+    Mapping:
+      backend/<arch>.md.j2          -> backend/references/architecture.md
+      frontend/<arch>.md.j2         -> frontend/references/architecture.md
+      review/backend.md.j2          -> reviewer/references/review-backend.md
+      review/frontend.md.j2         -> reviewer/references/review-frontend.md
+      documentation/<doc>.md.j2     -> documentation/references/documentation-backend.md
+      documentation/<doc>.md.j2     -> documentation/references/documentation-frontend.md
+      git-conventions/default.md.j2 -> git/references/conventions.md
+
+    Args:
+        templates_dir: Path to templates/guidelines/ (unused; kept for API compatibility).
+        target_skills_dir: Root skills directory (e.g. .opencode/skills/).
+        repo_root: Repository root path.
+        backend_arch_file: Selected backend architecture template filename.
+        frontend_arch_file: Selected frontend architecture template filename.
+        backend_doc_file: Selected backend documentation template filename (may be empty).
+        frontend_doc_file: Selected frontend documentation template filename (may be empty).
+        include_conventions: Whether to include git conventions.
+        tool: Tool name ('opencode' or 'claude') for guidelines context.
+    """
+    env = make_env(repo_root)
+    ctx: dict[str, object] = {"guidelines": guidelines_context(tool)}
+
+    def deploy(
+        src_subdir: str, src_filename: str, skill_name: str, dst_filename: str
+    ) -> None:
+        src_template = f"guidelines/{src_subdir}/{src_filename}"
+        dst = os.path.join(target_skills_dir, skill_name, "references", dst_filename)
+        assemble_guideline(src_template, dst, env, ctx)
+
+    if backend_arch_file:
+        deploy("backend", backend_arch_file, "backend", "architecture.md")
+        deploy("review", "backend.md.j2", "reviewer", "review-backend.md")
+    if frontend_arch_file:
+        deploy("frontend", frontend_arch_file, "frontend", "architecture.md")
+        deploy("review", "frontend.md.j2", "reviewer", "review-frontend.md")
+    if backend_doc_file:
+        deploy(
+            "documentation",
+            backend_doc_file,
+            "documentation",
+            "documentation-backend.md",
+        )
+    if frontend_doc_file:
+        deploy(
+            "documentation",
+            frontend_doc_file,
+            "documentation",
+            "documentation-frontend.md",
+        )
+    if include_conventions:
+        deploy("git-conventions", "default.md.j2", "git", "conventions.md")

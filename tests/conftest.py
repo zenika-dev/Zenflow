@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import os
 from pathlib import Path
 
 import pytest
 
-from zenflow.init import make_env
+from zenflow.rendering import make_env
 
 
 @pytest.fixture(scope="session")

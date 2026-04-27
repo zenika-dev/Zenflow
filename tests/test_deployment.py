@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from zenflow.init import (
+from zenflow.deployment import (
     deploy_agents,
     deploy_guidelines_to_github,
     deploy_guidelines_to_skills,

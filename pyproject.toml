@@ -14,7 +14,7 @@ dev = [
 ]
 
 [project.scripts]
-zenflow-init = "zenflow.init:main"
+zenflow-init = "zenflow.cli:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -34,6 +34,7 @@ show_missing = true
 
 [tool.ruff]
 src = ["src"]
+line-length = 120
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]

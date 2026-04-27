@@ -5,7 +5,8 @@ from __future__ import annotations
 import pytest
 from jinja2 import Environment
 
-from zenflow.init import guidelines_context, render_template
+from zenflow.guidelines import guidelines_context
+from zenflow.rendering import render_template
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -52,7 +53,7 @@ def test_no_unrendered_jinja(
     skill_mode: bool,
 ) -> None:
     """Rendered output must contain no leftover {{ }} or {% %} tags."""
-    from zenflow.init import make_env
+    from zenflow.rendering import make_env
     env = make_env(repo_root, agent_name=agent)
     result = _render_agent(env, agent, tool, skill_mode=skill_mode)
     assert "{{" not in result, f"Unrendered {{{{ in {agent}/{tool}/skill_mode={skill_mode}"
@@ -66,7 +67,7 @@ def test_no_unrendered_jinja(
 @pytest.mark.parametrize("agent", ALL_AGENTS)
 def test_copilot_agent_has_handoffs(repo_root: str, agent: str) -> None:
     """Copilot agent output (skill_mode=False) must include the handoffs: block."""
-    from zenflow.init import make_env
+    from zenflow.rendering import make_env
     env = make_env(repo_root, agent_name=agent)
     result = _render_agent(env, agent, "copilot", skill_mode=False)
     assert "handoffs:" in result
@@ -76,7 +77,7 @@ def test_copilot_agent_has_handoffs(repo_root: str, agent: str) -> None:
 @pytest.mark.parametrize("tool", ALL_TOOLS)
 def test_skill_has_no_handoffs_block(repo_root: str, agent: str, tool: str) -> None:
     """Skill output (skill_mode=True) must not contain the handoffs: YAML block."""
-    from zenflow.init import make_env
+    from zenflow.rendering import make_env
     env = make_env(repo_root, agent_name=agent)
     result = _render_agent(env, agent, tool, skill_mode=True)
     assert "handoffs:" not in result
@@ -90,7 +91,7 @@ def test_skill_has_no_handoffs_block(repo_root: str, agent: str, tool: str) -> N
 @pytest.mark.parametrize("tool", ALL_TOOLS)
 def test_skill_has_next_steps(repo_root: str, agent: str, tool: str) -> None:
     """Skill output (skill_mode=True) must include a ## Next Steps section."""
-    from zenflow.init import make_env
+    from zenflow.rendering import make_env
     env = make_env(repo_root, agent_name=agent)
     result = _render_agent(env, agent, tool, skill_mode=True)
     assert "## Next Steps" in result
@@ -99,7 +100,7 @@ def test_skill_has_next_steps(repo_root: str, agent: str, tool: str) -> None:
 @pytest.mark.parametrize("agent", ALL_AGENTS)
 def test_copilot_agent_has_no_next_steps(repo_root: str, agent: str) -> None:
     """Copilot agent output (skill_mode=False) must not include ## Next Steps."""
-    from zenflow.init import make_env
+    from zenflow.rendering import make_env
     env = make_env(repo_root, agent_name=agent)
     result = _render_agent(env, agent, "copilot", skill_mode=False)
     assert "## Next Steps" not in result
@@ -112,7 +113,7 @@ def test_copilot_agent_has_no_next_steps(repo_root: str, agent: str) -> None:
 @pytest.mark.parametrize("agent", ALL_AGENTS)
 def test_copilot_agent_has_tools_and_user_invocable(repo_root: str, agent: str) -> None:
     """Copilot agent output must include argument-hint, tools: and user-invocable: frontmatter."""
-    from zenflow.init import make_env
+    from zenflow.rendering import make_env
     env = make_env(repo_root, agent_name=agent)
     result = _render_agent(env, agent, "copilot", skill_mode=False)
     assert "argument-hint:" in result
@@ -124,7 +125,7 @@ def test_copilot_agent_has_tools_and_user_invocable(repo_root: str, agent: str) 
 @pytest.mark.parametrize("tool", ["opencode", "claude"])
 def test_skill_agent_has_no_tools_or_user_invocable(repo_root: str, agent: str, tool: str) -> None:
     """Skill agent output must not include argument-hint, tools: or user-invocable: frontmatter."""
-    from zenflow.init import make_env
+    from zenflow.rendering import make_env
     env = make_env(repo_root, agent_name=agent)
     result = _render_agent(env, agent, tool, skill_mode=True)
     assert "argument-hint:" not in result
@@ -143,7 +144,7 @@ def test_skill_agent_has_no_tools_or_user_invocable(repo_root: str, agent: str, 
 ])
 def test_backend_agent_arch_path(repo_root: str, tool: str, expected_arch: str) -> None:
     """Backend agent must reference the correct architecture guideline per tool."""
-    from zenflow.init import make_env
+    from zenflow.rendering import make_env
     env = make_env(repo_root, agent_name="backend")
     result = _render_agent(env, "backend", tool, skill_mode=False)
     assert expected_arch in result
@@ -156,7 +157,7 @@ def test_backend_agent_arch_path(repo_root: str, tool: str, expected_arch: str) 
 ])
 def test_frontend_agent_arch_path(repo_root: str, tool: str, expected_arch: str) -> None:
     """Frontend agent must reference the correct architecture guideline per tool."""
-    from zenflow.init import make_env
+    from zenflow.rendering import make_env
     env = make_env(repo_root, agent_name="frontend")
     result = _render_agent(env, "frontend", tool, skill_mode=False)
     assert expected_arch in result
@@ -169,7 +170,7 @@ def test_frontend_agent_arch_path(repo_root: str, tool: str, expected_arch: str)
 ])
 def test_reviewer_agent_review_path(repo_root: str, tool: str, expected_review: str) -> None:
     """Reviewer agent must reference the correct review guideline per tool."""
-    from zenflow.init import make_env
+    from zenflow.rendering import make_env
     env = make_env(repo_root, agent_name="reviewer")
     result = _render_agent(env, "reviewer", tool, skill_mode=False)
     assert expected_review in result
@@ -184,7 +185,7 @@ def test_documentation_agent_project_context(
     repo_root: str, tool: str, expected_ctx: str
 ) -> None:
     """Documentation agent must reference the correct project context file per tool."""
-    from zenflow.init import make_env
+    from zenflow.rendering import make_env
     env = make_env(repo_root, agent_name="documentation")
     result = _render_agent(env, "documentation", tool, skill_mode=False)
     assert expected_ctx in result
@@ -203,7 +204,7 @@ def test_reviewer_includes_review_report_partial(reviewer_env: Environment) -> N
 
 def test_reviewer_skill_override_used(repo_root: str) -> None:
     """Reviewer skill uses the override partial from templates/skills/reviewer/."""
-    from zenflow.init import make_env
+    from zenflow.rendering import make_env
     env = make_env(repo_root, agent_name="reviewer")
     result = _render_agent(env, "reviewer", "opencode", skill_mode=True)
     # The override and canonical partial are identical in content for reviewer,

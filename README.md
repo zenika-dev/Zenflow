@@ -4,28 +4,10 @@ Zenflow is an **open-source project** that showcases the most common agentic wor
 
 **Zenflow supports GitHub Copilot (VS Code), OpenCode, and Claude Code.** GitHub Copilot is always deployed as the baseline. OpenCode and Claude Code are optional add-ons.
 
----
 
-## Workflows
+## Quick Start
 
-### 1. Fullstack Application — New Feature
-
-This workflow delivers a complete feature end-to-end, from branch creation to a merged pull request. A top-level **Orchestrator** agent breaks the feature request into tasks and delegates each one to a specialist sub-agent in sequence.
-
-| Step | Agent | Responsibility |
-|------|-------|----------------|
-| 0 | Git | Creates and checks out a feature branch |
-| 1 | Backend | Produces feature plan (saved to `docs/plans/`) for user approval |
-| 2 | Backend | Implements API endpoints and business logic |
-| 3 | Frontend | Produces frontend plan for user approval |
-| 4 | Frontend | Builds UI components and wires up API calls |
-| 5 | Reviewer | Performs security and quality review |
-| 6 | Documentation | Updates README, JavaDoc, and TSDoc |
-| 7 | Git | Stages changes, writes a conventional commit, and prepares a PR description |
-
-#### Quick Start
-
-To use this workflow in an existing repository, run the init script:
+To install Zenflow in an existing repository, run the init script:
 
 ```bash
 # bash (Linux/macOS)
@@ -42,18 +24,8 @@ Follow the prompts to:
 4. Choose frontend stack (React, Next.js App Router).
 5. Optionally include git conventions.
 
-The script always deploys:
-- **GitHub Copilot (VS Code)**: Agents, instructions, and guidelines to `.github/`
-
-Optionally also deploys:
-- **OpenCode**: Wraps agents as skills in `.opencode/skills/`
-- **Claude Code**: Wraps agents as skills in `.claude/skills/` and copies `CLAUDE.md` to the repository root
-
-All tools reference `.github/guidelines/` as their single source of truth.
-
-#### Project Setup
-
-The init script always deploys the full GitHub Copilot setup. After running the script, the target repository will have:
+### What the script installs
+After running the script, the target repository will have:
 
 - **.github/agents/**: Agent definitions for Copilot
 - **.github/instructions/**: Shared cross-agent behavior rules
@@ -61,15 +33,38 @@ The init script always deploys the full GitHub Copilot setup. After running the 
 - **.opencode/skills/** (if OpenCode selected): Skills mirroring the agent structure, referencing `.github/guidelines/`
 - **.claude/skills/** and **CLAUDE.md** (if Claude Code selected): Skills and entry point for Claude Code, referencing `.github/guidelines/`
 
+### Recommended Supporting Files
 For best results, ensure the target project provides additional context:
-
-##### Recommended Supporting Files
 
 - **README.md**: The Documentation agent updates the README, so it helps if the project already has a clear structure and an API or usage section to extend.
 - **docs/plans/**: The Backend and Frontend agents save planning artifacts here for user review before implementation. Create this directory up front to keep outputs consistent.
 - **.github/copilot-instructions.md**: The Documentation agent will load this if it exists. It can be useful for project-specific context, terminology, and documentation expectations.
 
-##### How the Guidelines Work
+
+## Workflows
+
+### 1. Fullstack Application — New Feature
+
+This workflow delivers a complete feature end-to-end, from branch creation to a merged pull request. 
+
+When using GitHub Copilot, a top-level **Orchestrator** agent breaks the feature request into tasks and delegates each one to a specialist sub-agent in sequence. Subagents can also be loaded directly if preferable.
+
+When using OpenCode or ClaudeCode, each agent below is loaded as a Skill instead.
+
+| Step | Agent | Responsibility |
+|------|-------|----------------|
+| 0 | Git | Creates and checks out a feature branch |
+| 1 | Backend | Produces feature plan (saved to `docs/plans/`) for user approval |
+| 2 | Backend | Implements API endpoints and business logic |
+| 3 | Frontend | Produces frontend plan for user approval |
+| 4 | Frontend | Builds UI components and wires up API calls |
+| 5 | Reviewer | Performs security and quality review |
+| 6 | Documentation | Updates README and other documentation where applicable. |
+| 7 | Git | Stages changes, writes a conventional commit, and prepares a PR description |
+
+
+## Extending and Customising Zenflow
+### How the Guidelines Work
 
 The generated `.github/guidelines/` directory contains **all rules** for planning, implementation, and review. All tools reference this location directly:
 
@@ -88,9 +83,8 @@ Zenflow includes a stack template library under `templates/`.
 
 The templates exist to keep core agent behavior stable while moving stack-specific architecture and review conventions into reusable files.
 
-See [templates/README.md](templates/README.md) for available templates and structure.
+See [templates/README.md](templates/README.md) for available templates and structure, as well as how to extend this for your own use.
 
----
 
 ## Project Structure
 
@@ -106,21 +100,24 @@ Zenflow/
 │   │   └── git.agent.md
 │   └── instructions/         # Shared cross-agent behavior rules
 │       └── agent-questions.instructions.md
+├── docs/
+│   └── diagrams/             # Explanation of Zenflow orchestration
 ├── templates/
+│   ├── AGENTS.md             # OpenCode entry point template
+│   ├── CLAUDE.md             # Claude Code entry point template
 │   └── guidelines/           # Reusable stack-specific templates
 │       ├── backend/
+│       ├── documentation/
 │       ├── frontend/
 │       ├── review/
 │       └── git-conventions/
 ├── scripts/
 │   ├── init.sh               # Setup script (bash)
 │   └── init.ps1              # Setup script (PowerShell)
-├── CLAUDE.md             # Claude Code entry point template
 ├── README.md
 └── LICENSE
 ```
 
----
 
 ## License
 

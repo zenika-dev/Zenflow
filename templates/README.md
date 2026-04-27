@@ -7,35 +7,16 @@ Purpose:
 - move stack-specific behavior into copyable guideline files
 - make repository bootstrapping predictable for new teams
 
+To extend Zenflow with team specific guidelines, you can fork the repository, update the templates with additional guidelines, or include other templates. Then, team members cloning from your repository will be able to bootstrap their tools with team specific guidelines.
+
 ## Single Source of Truth
 
 Architecture templates (backend and frontend) contain **all rules** for planning, implementation, and review. They are the single source of truth.
 
-Review templates are **process documents only** — they define the review scope and instruct the reviewer to audit against the architecture guideline. They do not contain substantive rules. This ensures rules are never duplicated and cannot drift between implementation and review.
+Review templates are **process documents only** — they define the review scope and instruct the reviewer to audit against the architecture guideline. They do not contain substantive stack related rules. This ensures rules are never duplicated and cannot drift between implementation and review.
 
 ## How To Use
-
-Use `./scripts/init.sh` (bash) or `./scripts/init.ps1` (PowerShell) to bootstrap a target repository.
-
-The script always deploys the full GitHub Copilot (VS Code) setup. OpenCode and Claude Code are optional add-ons.
-
-1. **Always deployed**: Agents, instructions, and selected guideline templates to `.github/`
-2. **Optional add-ons**: OpenCode (`.opencode/skills/`) and/or Claude Code (`.claude/skills/` + `CLAUDE.md`)
-3. All tools reference `.github/guidelines/` as the single source of truth
-
-### Example
-
-```bash
-./scripts/init.sh
-# → Enter target repository path
-# → Also set up OpenCode? [y/N]
-# → Also set up Claude Code? [y/N]
-# → Choose backend stack (java-spring-boot, golang-gin, python-fastapi)
-# → Choose frontend stack (react-typescript, nextjs-app-router)
-# → Include conventions? [Y/n]
-# → Press key to continue
-# → Scaffolding complete!
-```
+See README.md at project root for deployment via script.
 
 ### Manual Setup (if not using init script)
 
@@ -47,6 +28,7 @@ The script always deploys the full GitHub Copilot (VS Code) setup. OpenCode and 
    - backend review → `.github/guidelines/review-backend.md`
    - frontend review → `.github/guidelines/review-frontend.md`
    - (optional) conventions → `.github/guidelines/conventions.md`
+   - (opitonal) stack specific documentation → `.github/guidelines/documentation-backend.md` (or frontend)
 4. Edit each copied file with project-specific details.
 
 **Minimum required files:**
@@ -83,6 +65,10 @@ Review protocol templates:
 
 Conventions:
 - `guidelines/git-conventions/default.md`
+
+Documentation:
+- `guidelines/documentation/java-spring-boot.md`
+- `guidelines/documentation/react-typescript.md`
 
 ## Notes
 

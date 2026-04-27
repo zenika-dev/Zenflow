@@ -4,6 +4,12 @@ Zenflow is an **open-source project** that showcases the most common agentic wor
 
 **Zenflow supports GitHub Copilot (VS Code), OpenCode, and Claude Code.** GitHub Copilot is always deployed as the baseline. OpenCode and Claude Code are optional add-ons.
 
+To extend Zenflow with team specific guidelines for your own use:
+1. Fork the repository
+2. Update the templates with additional guidelines, or include other templates
+3. Team members cloning from your repository will be able to bootstrap their tools with team specific guidelines.
+
+For more details on how to extend Zenflow, refer to the relevant section below.
 
 ## Quick Start
 

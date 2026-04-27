@@ -4,10 +4,8 @@ This directory contains reusable guideline templates for different backend and f
 
 Purpose:
 - keep core agents stable and stack-agnostic
-- move stack-specific behavior into copyable guideline files
+- keep stack-specific behavior into copyable guideline files
 - make repository bootstrapping predictable for new teams
-
-To extend Zenflow with team specific guidelines, you can fork the repository, update the templates with additional guidelines, or include other templates. Then, team members cloning from your repository will be able to bootstrap their tools with team specific guidelines.
 
 ## Single Source of Truth
 

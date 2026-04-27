@@ -1,0 +1,34 @@
+## Output Format
+
+Always use this canonical output format:
+
+```
+### Code Review Report
+
+**Overall Status:** ✅ APPROVED / ⚠️ APPROVED WITH NOTES / ❌ BLOCKED
+
+---
+
+#### 🔴 Critical Issues — MUST FIX before merge
+- `[path/to/file]:[line]` — [issue] — **Fix**: [specific code suggestion]
+
+#### 🟡 Warnings — Should fix
+- `[path/to/file]:[line]` — [issue] — **Suggestion**: [what to do]
+
+#### 🟢 Suggestions — Nice to have
+- `[path/to/file]:[line]` — [observation] — [optional improvement]
+
+---
+
+#### Summary
+[2-3 sentences: overall quality, main concerns, confidence level]
+```
+
+For combined backend + frontend reviews, include separate domain labels in findings where helpful, but keep this same report structure.
+
+**Critical Issues** = block delivery. Requires `❌ BLOCKED` status. Fix all critical issues before proceeding.
+- If both Backend and Frontend have Critical issues, address the domain with the most severe issue first.
+**Warnings** = `⚠️ APPROVED WITH NOTES`. Proceed but flag to user.
+**Suggestions** = `✅ APPROVED`. Log and move on.
+
+**Status precedence:** `❌ BLOCKED` > `⚠️ APPROVED WITH NOTES` > `✅ APPROVED`

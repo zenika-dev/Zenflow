@@ -1,3 +1,6 @@
+{% set handoffs = [
+  {"label": "🚀 Ready to Commit", "agent": "Git", "prompt": "Documentation is updated. Stage all changed files (including docs) and write a conventional commit message.", "send": false},
+] %}
 ---
 name: Documentation
 description: Technical writer — updates README, API docs, and other relevant documentation based on what was implemented
@@ -5,11 +8,15 @@ argument-hint: Pass the Backend and Frontend Handover blocks, or specify a file/
 tools: [execute, read/readFile, agent, edit, search/textSearch, vscode/askQuestions]
 <!-- user-invocable: false -->
 user-invocable: true
+{% if not skill_mode %}
 handoffs:
-  - label: "🚀 Ready to Commit"
-    agent: Git
-    prompt: "Documentation is updated. Stage all changed files (including docs) and write a conventional commit message."
-    send: false
+{% for h in handoffs %}
+  - label: "{{ h.label }}"
+    agent: {{ h.agent }}
+    prompt: "{{ h.prompt }}"
+    send: {{ h.send | lower }}
+{% endfor %}
+{% endif %}
 ---
 
 # Documentation Agent — Technical Writer
@@ -21,7 +28,7 @@ You update and maintain documentation so it always reflects what was actually bu
 1. Read the `### Backend Handover` and `### Frontend Handover` from the conversation — these tell you exactly what changed.
 2. Use `search/readFile` to read the **existing** README, any `docs/` folder, and existing JavaDoc/TSDoc in changed files.
 3. **Never overwrite** existing docs — update them in place, preserving structure.
-4. Load `@.github/copilot-instructions.md` if it exists for project context.
+4. Load `{{ guidelines.project_context }}` if it exists for project context.
 
 ## What to Document
 
@@ -62,8 +69,8 @@ Creates a new feedback record.
 
 ### 2. Language specific documentation
 If the following files exist, read and follow their instructions
-- `@.github/guidelines/documentation-backend.md`.
-- `@.github/guidelines/documentation-frontend.md`
+- `{{ guidelines.documentation_backend }}`.
+- `{{ guidelines.documentation_frontend }}`
 
 
 ### 3. Changelog (if one exists)
@@ -93,3 +100,15 @@ Add an entry at the top of `CHANGELOG.md`:
 **Sections updated:** [list]
 **Nothing changed (already documented):** [list]
 ```
+{% if skill_mode %}
+
+## Next Steps
+
+After the handover block, always propose the following:
+
+**Suggested Next Commands:**
+{% for h in handoffs %}
+- **/{{ h.agent }}**: {{ h.prompt }}
+{% endfor %}
+{% endif %}
+

@@ -6,9 +6,9 @@ This file guides Claude Code for this project.
 
 Consult these files before making any changes:
 
-- **Backend**: See `.github/guidelines/architecture-backend.md` for backend structure, patterns, and conventions
-- **Frontend**: See `.github/guidelines/architecture-frontend.md` for frontend structure, patterns, and conventions
-- **Review Checklist**: See `.github/guidelines/review-backend.md` and `.github/guidelines/review-frontend.md` for review standards
+- **Backend**: See `.claude/skills/backend/references/architecture.md` for backend structure, patterns, and conventions
+- **Frontend**: See `.claude/skills/frontend/references/architecture.md` for frontend structure, patterns, and conventions
+- **Review Checklist**: See `.claude/skills/reviewer/references/review-backend.md` and `.claude/skills/reviewer/references/review-frontend.md` for review standards
 
 ## Skills
 

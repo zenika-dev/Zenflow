@@ -1,3 +1,6 @@
+{% set handoffs = [
+  {"label": "🔁 Retry with Plan only", "agent": "Orchestrator", "prompt": "Re-plan the feature from scratch.", "send": false},
+] %}
 ---
 name: Orchestrator
 description: Orchestrates full-stack feature delivery — calls Backend, Frontend, Docs, Reviewer, Git as sub-agents
@@ -5,11 +8,15 @@ argument-hint: Describe the feature to build (e.g. "Build a user feedback form w
 tools: [agent, read/readFile, agent/runSubagent, agent, vscode/askQuestions]
 agents: [Backend, Frontend, Documentation, Reviewer, Git]
 user-invocable: true
+{% if not skill_mode %}
 handoffs:
-  - label: "🔁 Retry with Plan only"
-    agent: Orchestrator
-    prompt: "Re-plan the feature from scratch."
-    send: false
+{% for h in handoffs %}
+  - label: "{{ h.label }}"
+    agent: {{ h.agent }}
+    prompt: "{{ h.prompt }}"
+    send: {{ h.send | lower }}
+{% endfor %}
+{% endif %}
 ---
 
 # Orchestrator Agent — Orchestrator
@@ -252,3 +259,15 @@ Present this to the user:
 - Always pass structured context (Feature Plan + Handover blocks) between sub-agents
 - Never call Git if Reviewer returned `❌ BLOCKED`
 - If any sub-agent fails twice, stop and surface the problem to the user — do not guess
+{% if skill_mode %}
+
+## Next Steps
+
+After the handover block, always propose the following:
+
+**Suggested Next Commands:**
+{% for h in handoffs %}
+- **/{{ h.agent }}**: {{ h.prompt }}
+{% endfor %}
+{% endif %}
+

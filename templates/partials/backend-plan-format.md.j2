@@ -1,0 +1,29 @@
+## Backend Plan Format
+
+```markdown
+## Feature Plan: [Feature Name]
+
+### What we are building
+[1 short paragraph in plain language]
+
+### Backend scope
+- New or changed endpoints: [list]
+- Files to create/modify: [list]
+- Data/storage changes: [yes/no and details]
+
+### Frontend impact
+- New or changed UI areas: [list]
+- API calls required by frontend: [list]
+
+### API Contract
+| Method | Path | Auth Required | Request | Response | Error Codes |
+|--------|------|---------------|---------|----------|-------------|
+| POST | /api/example | No | { "name": "string" } | { "id": 1 } | 400, 500 |
+
+### Testing plan
+- Backend tests to add/update: [list — must follow Testing Strategy defaults; do not add controller or repository tests unless the user explicitly requested them]
+- Integration points to verify: [list]
+
+### Risks and unknowns
+- [list]
+```

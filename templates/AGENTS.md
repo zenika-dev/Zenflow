@@ -6,9 +6,9 @@ This file guides OpenCode for this project.
 
 Consult these files before making any changes:
 
-- **Backend**: See `.github/guidelines/architecture-backend.md` for backend structure, patterns, and conventions
-- **Frontend**: See `.github/guidelines/architecture-frontend.md` for frontend structure, patterns, and conventions
-- **Review Checklist**: See `.github/guidelines/review-backend.md` and `.github/guidelines/review-frontend.md` for review standards
+- **Backend**: See `.opencode/skills/backend/references/architecture.md` for backend structure, patterns, and conventions
+- **Frontend**: See `.opencode/skills/frontend/references/architecture.md` for frontend structure, patterns, and conventions
+- **Review Checklist**: See `.opencode/skills/reviewer/references/review-backend.md` and `.opencode/skills/reviewer/references/review-frontend.md` for review standards
 
 ## Skills
 

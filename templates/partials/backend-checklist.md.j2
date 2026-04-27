@@ -1,0 +1,10 @@
+## Backend Implementation Checklist
+
+- [ ] Read this file before coding
+- [ ] Entity: create/update JPA entities when data model changes are required
+- [ ] Repository: create/update Spring Data JPA repository interfaces (no `@Repository` needed for interfaces)
+- [ ] Service: implement business logic with `@Service` and `@Transactional` where needed
+- [ ] Controller: expose endpoints via `@RestController`; keep controllers thin
+- [ ] Tests: follow the Testing Strategy section; do not add controller tests by default
+- [ ] Run project backend test command
+- [ ] Verify no sensitive data exposure in logs/errors

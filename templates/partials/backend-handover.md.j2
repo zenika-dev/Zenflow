@@ -1,0 +1,32 @@
+## Backend Handover Format
+
+```markdown
+### Backend Handover
+
+**Endpoints Created / Modified**
+| Method | Path | Auth Required | Request Body | Response Body | Status Codes |
+|--------|------|---------------|--------------|---------------|--------------|
+| POST | /api/example | No | { "name": "string" } | { "id": 1 } | 201, 400, 500 |
+
+**Data and Schema Changes**
+- [none or list migrations/schema updates]
+
+**Files Changed**
+| File | Change |
+|------|--------|
+| src/path/to/file | Created or Modified with short reason |
+
+**Test Result**
+- Status: PASS or FAIL
+- Command: [exact command]
+- Notes: [summary or failure excerpt]
+
+**Notes for Frontend**
+- [validation rules]
+- [auth requirements]
+- [pagination/sorting/filter behavior]
+
+**Notes for Reviewer**
+- [trade-offs]
+- [known limitations]
+```

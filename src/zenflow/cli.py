@@ -65,19 +65,60 @@ def _choose_stack(label: str, options: dict[str, tuple[str, str]]) -> tuple[str,
 
 
 def choose_backend_stack() -> tuple[str, str]:
-    """Prompt user to choose backend stack.
+    """Prompt user to choose backend language then framework.
 
     Returns:
         Tuple of (arch_filename, doc_filename) — doc_filename may be empty string.
     """
-    return _choose_stack(
+    language = _choose_stack(
         "backend",
         {
-            "1": ("java-spring-boot.md.j2", "java-spring-boot.md.j2"),
-            "2": ("golang-gin.md.j2", ""),
-            "3": ("python-fastapi.md.j2", ""),
+            "1": ("python", ""),
+            "2": ("java", ""),
+            "3": ("golang", ""),
         },
-    )
+    )[0]
+
+    frameworks: dict[str, dict[str, tuple[str, str]]] = {
+        "python": {
+            "1": ("python.md.j2", ""),
+            "2": ("python-fastapi.md.j2", ""),
+        },
+        "java": {
+            "1": ("java.md.j2", ""),
+            "2": ("java-spring-boot.md.j2", "java-spring-boot.md.j2"),
+        },
+        "golang": {
+            "1": ("golang.md.j2", ""),
+            "2": ("golang-gin.md.j2", ""),
+        },
+    }
+
+    framework_labels: dict[str, dict[str, tuple[str, str]]] = {
+        "python": {
+            "1": ("None (plain Python)", ""),
+            "2": ("FastAPI", ""),
+        },
+        "java": {
+            "1": ("None (plain Java)", ""),
+            "2": ("Spring Boot", ""),
+        },
+        "golang": {
+            "1": ("None (plain Go)", ""),
+            "2": ("Gin", ""),
+        },
+    }
+
+    print()
+    print(f"Choose {language} framework:")
+    for key, (label, _) in framework_labels[language].items():
+        print(f"  {key}) {label}")
+    options = frameworks[language]
+    choice = input(f"Enter choice [1-{len(options)}]: ").strip()
+    if choice not in options:
+        print(f"Error: invalid framework choice '{choice}'.", file=sys.stderr)
+        sys.exit(1)
+    return options[choice]
 
 
 def choose_frontend_stack() -> tuple[str, str]:

@@ -1,20 +1,8 @@
-# Backend Architecture Guidelines (Go + Gin)
+{% include 'guidelines/backend/golang.md.j2' %}
 
-Purpose: backend single source of truth for architecture, implementation order, testing, and backend handover format.
+## Framework: Gin
 
-## Stack Profile
-
-- Language: Go 1.22+
 - Framework: Gin
-- Data: SQL database via `database/sql`, sqlc, GORM, or project standard
-
-## Project Structure Expectations
-
-- Keep HTTP handlers thin and focused on transport concerns.
-- Keep business logic in service/use-case packages.
-- Keep persistence in repository/store packages.
-- Keep DTOs/models and mapping logic explicit.
-- Follow project conventions for package layout and naming.
 
 ## API and Validation Conventions
 
@@ -22,37 +10,7 @@ Purpose: backend single source of truth for architecture, implementation order, 
 - Return stable JSON response envelopes and error formats.
 - Use middleware for auth, tracing, and request logging.
 - Avoid leaking internal error details in API responses.
-- Wrap and handle errors consistently throughout the call chain.
-- Handle context propagation and timeouts consistently across handlers and services.
-- Do not hardcode secrets, tokens, or passwords in source files.
-- Do not log sensitive data.
 
-## Persistence and Data Rules
+## Testing Strategy (Gin-specific)
 
-- Never build SQL from untrusted input by string concatenation.
-- Use migrations for schema changes.
-- Keep transaction boundaries explicit in service/repository layer.
-
-## Testing Strategy (Mandatory)
-
-- Prefer handler/integration tests using table-driven test patterns (idiomatic Go).
 - Use `net/http/httptest` package to test handlers with mocked requests/responses.
-- For complex business logic in services, add unit tests with mocks as needed.
-- Cover edge cases including invalid input, not found, and constraint violations.
-- Tests should verify behavior, not internal implementation details.
-- Test names should clearly describe the test case.
-- Do not create repository/data layer tests by default.
-- Add data layer tests only when custom SQL queries exist, or when explicitly requested by the user or required by the approved plan.
-
-## Required Workflow Contract (Backend)
-
-Use this file as the source of truth for:
-- backend plan format
-- backend implementation checklist
-- backend handover format
-
-{% include 'partials/backend-plan-format.md.j2' %}
-
-{% include 'partials/backend-checklist.md.j2' %}
-
-{% include 'partials/backend-handover.md.j2' %}

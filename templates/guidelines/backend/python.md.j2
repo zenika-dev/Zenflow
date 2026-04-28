@@ -1,0 +1,55 @@
+# Backend Architecture Guidelines (Python)
+
+Purpose: backend single source of truth for architecture, implementation order, testing, and backend handover format.
+
+## Stack Profile
+
+- Language: Python 3.11+
+- Environment management: prefer using `uv` and `pyproject.toml` if not already defined
+
+## Project Structure Expectations
+
+- Keep entry points thin and focused on their transport/interface concerns.
+- Keep business logic in service modules.
+- Keep persistence logic in repository/data modules.
+- Follow project conventions for module layout and naming.
+
+## Security Rules
+
+- Do not hardcode secrets, tokens, or passwords in source files.
+- Do not log sensitive data.
+
+## Code cleanliness
+- Add full type annotations to all functions, methods, and module-level variables — no implicit `Any`.
+- Write docstrings on all public functions, classes, and modules.
+- Prefer `async`/`await` for I/O heavy tasks; avoid blocking calls in async code paths.
+- Run `ruff check --fix .` and `ruff format .` before committing.
+- Run `ty check .` to check for type errors before committing.
+
+## Persistence and Data Rules
+
+- Do not compose raw SQL with untrusted input.
+- Use migrations for schema evolution.
+- Keep transaction boundaries explicit.
+
+## Testing Strategy
+
+- Prefer function based tests with fixtures, centralized in `conftest.py` if shared.
+- Use pytest parametrize for testing multiple scenarios where necessary.
+- Use `unittest.mock` for mocking external dependencies and side effects.
+- Cover edge cases including invalid input, not found, and constraint violations.
+- Tests should verify behavior, not private internals.
+- Test names should clearly describe the behavior or test case.
+
+## Required Workflow Contract (Backend)
+
+Use this file as the source of truth for:
+- backend plan format
+- backend implementation checklist
+- backend handover format
+
+{% include 'partials/backend-plan-format.md.j2' %}
+
+{% include 'partials/backend-checklist.md.j2' %}
+
+{% include 'partials/backend-handover.md.j2' %}

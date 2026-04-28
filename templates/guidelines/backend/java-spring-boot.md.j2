@@ -1,42 +1,26 @@
-# Backend Architecture Guidelines (Java + Spring Boot)
+{% include 'guidelines/backend/java.md.j2' %}
 
-Purpose: backend single source of truth for architecture, implementation order, testing, and backend handover format.
+## Framework: Spring Boot
 
-## Stack Profile
-
-- Language: Java 17+
 - Framework: Spring Boot
-- Build: Maven or Gradle
 - Data: Spring Data JPA (or project standard)
-
-## Project Structure Expectations
-
-- Keep API entry points in `controller` packages.
-- Keep business logic in `service` packages.
-- Keep persistence logic in `repository` packages.
-- Keep DTOs, entities, and mappers separated by responsibility.
-- Use DTOs at API boundaries; do not replace persistence entities with DTOs in repository layer.
-- Follow project conventions for package and class naming.
 
 ## API and Validation Conventions
 
+- Keep API entry points in `controller` packages.
 - Controllers stay thin and delegate to services.
 - Use `@RestController` with consistent `@RequestMapping` conventions.
 - Avoid `ResponseEntity` by default; use it only when status/header control is required.
 - Validate request DTOs using Bean Validation annotations.
 - Return stable response shapes for success and error cases.
 - Use `@ControllerAdvice` (or project equivalent) for centralized exception handling.
-- Do not leak sensitive implementation details in client-facing error responses.
-- Do not hardcode secrets, tokens, or passwords in source files.
-- Do not log sensitive data.
 
 ## Persistence and Data Rules
 
+- Keep persistence logic in `repository` packages.
 - Model persisted domain changes with JPA entities first.
 - Use Spring Data JPA repositories; do not add `@Repository` when using repository interfaces.
-- No raw SQL string concatenation with untrusted input.
 - Use migrations for schema changes (Flyway/Liquibase/project standard).
-- Keep transaction boundaries explicit in service layer.
 
 ## Implementation Order (Mandatory)
 
@@ -52,30 +36,12 @@ This order keeps schema and business logic stable before exposing HTTP endpoints
 
 Entity-first does not conflict with DTO usage: entities model persistence, while DTOs shape request/response contracts.
 
-## Testing Strategy (Mandatory)
+## Testing Strategy (Spring Boot-specific)
 
-- Prefer service-layer tests as the default verification layer.
 - For straightforward rules, use integration-style service tests against in-memory DB where appropriate.
-- For complex business branching, use unit tests with mocks at service layer.
-- Cover edge cases including invalid input, not found, and constraint violations.
-- Tests should verify behavior, not private implementation details.
-- Test names should clearly describe the behavior under test.
 - Do not create repository tests by default.
 - Add repository tests only when custom queries exist, or when explicitly requested by the user or required by the approved plan.
 - Do not create controller tests by default.
 - Add controller tests only when explicitly requested by the user or required by the approved plan.
 
 **Planning constraint:** When generating a feature plan, do not include repository tests or controller tests in the testing plan unless the user explicitly requested them. The "required by the approved plan" clause applies only during implementation — it does not allow the planner to self-approve excluded test types.
-
-## Required Workflow Contract (Backend)
-
-Use this file as the source of truth for:
-- backend plan format
-- backend implementation checklist
-- backend handover format
-
-{% include 'partials/backend-plan-format.md.j2' %}
-
-{% include 'partials/backend-checklist.md.j2' %}
-
-{% include 'partials/backend-handover.md.j2' %}

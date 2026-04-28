@@ -41,13 +41,6 @@ This is only used by Copilot to configure how questions are asked to the user an
 
 Partial templates are shared across different stacks and involve formatting of output, checklists, and handover. You can define your own partials that can be loaded automatically by the init script into the actual agents/skills templates. See files in `guidelines/backend/` for an example at the end of each file.
 
-
-## AGENTS.md
-For Claude Code and Open Code, this will be copied to either CLAUDE or AGENTS.md. As this file will be loaded for every session, it is deliberately lightweight. Since skills are handled natively by both tools, there is no need to specify where to load the skills from.
-
-Editing this file will configure what is loaded into your team's tool **every session**.
-
-
 ## Jinja Templates
 
 **Agent and guideline source files** are [Jinja2](https://jinja.palletsprojects.com/) templates (`.md.j2`). At init time, each template will be rendered with a tool-specific context, and assembled files will be written to the target.

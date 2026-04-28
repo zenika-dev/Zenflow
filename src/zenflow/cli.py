@@ -228,17 +228,6 @@ def main() -> None:
         )
         print(f"Copied skills to {target_opencode_dir}")
 
-        agents_template = os.path.join(repo_root, "templates", "AGENTS.md")
-        agents_target = os.path.join(target_path, "AGENTS.md")
-        if os.path.isfile(agents_template):
-            shutil.copy(agents_template, agents_target)
-            print(f"Copied AGENTS.md to {target_path}")
-        else:
-            print(
-                f"Warning: AGENTS.md template not found at {agents_template}",
-                file=sys.stderr,
-            )
-
     # --- Deploy Claude Code ---
     if deploy_claude:
         print("Deploying Claude Code setup...")
@@ -256,26 +245,15 @@ def main() -> None:
         )
         print(f"Copied skills to {target_claude_dir}")
 
-        claude_template = os.path.join(repo_root, "templates", "AGENTS.md")
-        claude_target = os.path.join(target_path, "CLAUDE.md")
-        if os.path.isfile(claude_template):
-            shutil.copy(claude_template, claude_target)
-            print(f"Copied CLAUDE.md to {target_path}")
-        else:
-            print(
-                f"Warning: AGENTS.md template not found at {claude_template}",
-                file=sys.stderr,
-            )
-
     print()
     print("Initialization complete.")
     print(f"Target: {target_path}")
     if deploy_copilot:
         print("✓ GitHub Copilot (VS Code): .github/agents, instructions, and guidelines")
     if deploy_opencode:
-        print("✓ OpenCode: .opencode/skills/ (with references/) and AGENTS.md")
+        print("✓ OpenCode: .opencode/skills/ (with references/)")
     if deploy_claude:
-        print("✓ Claude Code: .claude/skills/ (with references/) and CLAUDE.md")
+        print("✓ Claude Code: .claude/skills/ (with references/)")
     if backend_doc_msg:
         print(f"- {backend_doc_msg}")
     if frontend_doc_msg:

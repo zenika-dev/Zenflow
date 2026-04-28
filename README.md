@@ -34,16 +34,15 @@ Follow the prompts to:
 After running the script, the target repository will have:
 
 - **.github/agents/**, **.github/instructions/**, **.github/guidelines/** (if GitHub Copilot selected)
-- **.opencode/skills/** and **AGENTS.md** (if OpenCode selected)
-- **.claude/skills/** and **CLAUDE.md** (if Claude Code selected)
+- **.opencode/skills/** (if OpenCode selected)
+- **.claude/skills/** (if Claude Code selected)
 
 ### Recommended Supporting Files
 For best results, ensure the target project provides additional context:
 
 - **README.md**: The Documentation agent updates the README, so it helps if the project already has a clear structure and an API or usage section to extend.
-- **docs/plans/**: The Backend and Frontend agents save planning artifacts here for user review before implementation. Create this directory up front to keep outputs consistent.
-- **.github/copilot-instructions.md** (for Copilot only): The Documentation agent will load this if it exists. It can be useful for project-specific context, terminology, and documentation expectations.
-
+- **docs/plans/**: The Backend and Frontend agents/skills save planning artifacts here for user review before implementation. Create this directory up front to keep outputs consistent.
+- **.github/copilot-instructions.md**, **AGENTS.md** or **CLAUDE.md** (depending on tool used): Useful for project-specific context, terminology, and documentation expectations. The Documentation agent/skill will load this if available.
 
 ## Workflows
 

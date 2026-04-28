@@ -4,17 +4,9 @@ Zenflow is an **open-source project** that showcases the most common agentic wor
 
 **Zenflow supports GitHub Copilot (VS Code), OpenCode, and Claude Code.** Each tool is optional — you can install any combination.
 
-To extend Zenflow with team specific guidelines for your own use:
-1. Fork the repository
-2. Update the templates with additional guidelines, or include other templates
-3. Team members cloning from your repository will be able to bootstrap their tools with team specific guidelines.
-
-For more details on how to extend Zenflow, refer to the relevant section below.
-
-
 ## Quick Start
 
-To install a boilerplate version of Zenflow in an existing repository, install dependencies with [uv](https://docs.astral.sh/uv/) and run the init script:
+To install a boilerplate version of Zenflow in an existing repository, install dependencies with [Python](https://www.python.org/) and [uv](https://docs.astral.sh/uv/) and run the init script:
 
 ```bash
 uv sync
@@ -67,6 +59,12 @@ This workflow delivers a complete feature end-to-end, from branch creation to a 
 For a detailed flow diagram, see [docs/diagrams/fullstack-newfeature.md](docs/diagrams/fullstack-newfeature.md).
 
 ## Extending and Customising Zenflow
+
+To extend Zenflow with team specific guidelines for your own use:
+1. Fork the repository
+2. Update the templates with additional guidelines, or include other templates
+3. Team members cloning from your repository will be able to bootstrap their tools with team specific guidelines.
+
 Zenflow includes a stack template library under `templates/`.
 
 See [templates/README.md](templates/README.md) for available templates and structure, as well as how to extend this for your own use.

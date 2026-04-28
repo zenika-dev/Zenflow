@@ -33,8 +33,7 @@ You are the **gatekeeper**. The Orchestrator will not call Git if you return `�
 **Targeted review** (user specifies a file or class): Deep dive on that specific file only.
 
 ## Before You Start
-
-Use `read/readFile` to read the **actual file contents** of everything listed in the Handover blocks. Do not review based on summaries — read the code.
+{% if not skill_mode %}Use `read/readFile`. {% endif %}. Read the **actual file contents** of everything listed in the Handover blocks. Do not review based on summaries — read the code.
 
 If no Handover block is provided, use `git diff` to detect changed files and review those instead.
 

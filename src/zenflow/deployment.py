@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import glob
 import os
-import re
 
 from zenflow.guidelines import guidelines_context
 from zenflow.rendering import assemble_agent, assemble_guideline, make_env
@@ -29,28 +28,23 @@ def deploy_agents(
     """
     os.makedirs(target_agents_dir, exist_ok=True)
     context = {"guidelines": guidelines_context(tool)}
+    env = make_env(repo_root)
 
     for agent_file in glob.glob(os.path.join(agents_src_dir, "*.md.j2")):
-        agent_name = re.sub(
-            r"\.agent$",
-            "",
-            os.path.splitext(os.path.splitext(os.path.basename(agent_file))[0])[0],
-        )
-        env = make_env(repo_root, agent_name=agent_name)
+        agent_name = os.path.splitext(os.path.splitext(os.path.basename(agent_file))[0])[0]
         template_path = f"agents/{os.path.basename(agent_file)}"
 
         if skill_mode:
             skill_dir = os.path.join(target_agents_dir, agent_name)
             dst = os.path.join(skill_dir, "SKILL.md")
         else:
-            out_name = os.path.basename(agent_file)[: -len(".j2")]
+            out_name = f"{agent_name}.agent.md"
             dst = os.path.join(target_agents_dir, out_name)
 
         assemble_agent(template_path, dst, env, context, skill_mode=skill_mode)
 
 
 def deploy_guidelines_to_github(
-    templates_dir: str,
     target_guidelines_dir: str,
     repo_root: str,
     backend_arch_file: str,
@@ -62,7 +56,6 @@ def deploy_guidelines_to_github(
     """Deploy guideline files to .github/guidelines/ (GitHub Copilot).
 
     Args:
-        templates_dir: Path to templates/guidelines/ (unused; kept for API compatibility).
         target_guidelines_dir: Destination .github/guidelines/ path.
         repo_root: Repository root path.
         backend_arch_file: Selected backend architecture template filename.
@@ -94,7 +87,6 @@ def deploy_guidelines_to_github(
 
 
 def deploy_guidelines_to_skills(
-    templates_dir: str,
     target_skills_dir: str,
     repo_root: str,
     backend_arch_file: str,
@@ -116,7 +108,6 @@ def deploy_guidelines_to_skills(
       git-conventions/default.md.j2 -> git/references/conventions.md
 
     Args:
-        templates_dir: Path to templates/guidelines/ (unused; kept for API compatibility).
         target_skills_dir: Root skills directory (e.g. .opencode/skills/).
         repo_root: Repository root path.
         backend_arch_file: Selected backend architecture template filename.
@@ -129,9 +120,7 @@ def deploy_guidelines_to_skills(
     env = make_env(repo_root)
     ctx: dict[str, object] = {"guidelines": guidelines_context(tool)}
 
-    def deploy(
-        src_subdir: str, src_filename: str, skill_name: str, dst_filename: str
-    ) -> None:
+    def deploy(src_subdir: str, src_filename: str, skill_name: str, dst_filename: str) -> None:
         src_template = f"guidelines/{src_subdir}/{src_filename}"
         dst = os.path.join(target_skills_dir, skill_name, "references", dst_filename)
         assemble_guideline(src_template, dst, env, ctx)

@@ -8,26 +8,16 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 
-def make_env(repo_root: str, agent_name: str | None = None) -> Environment:
+def make_env(repo_root: str) -> Environment:
     """Return a Jinja2 Environment with template search paths.
-
-    Search order:
-    1. templates/skills/<agent_name>/  (tool-specific overrides, if agent_name given)
-    2. templates/                      (canonical templates and partials)
 
     Args:
         repo_root: Repository root path.
-        agent_name: Optional agent name for skill-level template overrides.
 
     Returns:
         Configured Jinja2 Environment.
     """
-    search_paths: list[str] = []
-    if agent_name:
-        override_dir = os.path.join(repo_root, "templates", "skills", agent_name)
-        if os.path.isdir(override_dir):
-            search_paths.append(override_dir)
-    search_paths.append(os.path.join(repo_root, "templates"))
+    search_paths: list[str] = [os.path.join(repo_root, "templates")]
 
     return Environment(
         loader=FileSystemLoader(search_paths),
@@ -41,7 +31,7 @@ def make_env(repo_root: str, agent_name: str | None = None) -> Environment:
 def render_template(
     env: Environment,
     template_path: str,
-    context: dict,
+    context: dict[str, object],
 ) -> str:
     """Render a Jinja2 template file with the given context.
 
@@ -72,11 +62,11 @@ def assemble_agent(
     src_template: str,
     dst_path: str,
     env: Environment,
-    context: dict,
+    context: dict[str, object],
     *,
     skill_mode: bool = False,
 ) -> None:
-    """Render an agent template and write to dst_path.
+    """Render a template and write to dst_path.
 
     Args:
         src_template: Template path relative to loader root (e.g. 'agents/backend.agent.md.j2').
@@ -93,7 +83,7 @@ def assemble_guideline(
     src_template: str,
     dst_path: str,
     env: Environment,
-    context: dict,
+    context: dict[str, object],
 ) -> None:
     """Render a guideline template and write to dst_path.
 
@@ -101,7 +91,6 @@ def assemble_guideline(
         src_template: Template path relative to loader root.
         dst_path: Absolute output path.
         env: Configured Jinja2 Environment.
-        context: Template variables (guidelines context not needed for guideline files).
+        context: Template variables.
     """
-    rendered = render_template(env, src_template, context)
-    write_rendered(rendered, dst_path)
+    assemble_agent(src_template, dst_path, env, context)

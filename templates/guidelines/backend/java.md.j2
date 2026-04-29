@@ -16,32 +16,12 @@ Purpose: backend single source of truth for architecture, implementation order, 
 - Use DTOs at API boundaries; do not replace persistence entities with DTOs in the repository layer.
 - Follow project conventions for package and class naming.
 
-## Security Rules
+## Code Quality
 
-- Do not hardcode secrets, tokens, or passwords in source files.
-- Do not log sensitive data.
-- Do not leak sensitive implementation details in client-facing error responses.
-
-## Persistence and Data Rules
-
-- No raw SQL string concatenation with untrusted input.
-- Use migrations for schema changes.
-- Keep transaction boundaries explicit in the service layer.
-
-## Testing Strategy
-
+- Use PMD, SpotBugs, and ArchUnit to analyze code after it is implemented.
 - Prefer service-layer tests as the default verification layer.
-- For complex business branching, use unit tests with mocks at the service layer.
-- Cover edge cases including invalid input, not found, and constraint violations.
-- Tests should verify behavior, not private implementation details.
-- Test names should clearly describe the behavior under test.
 
-## Required Workflow Contract (Backend)
-
-Use this file as the source of truth for:
-- backend plan format
-- backend implementation checklist
-- backend handover format
+{% include 'partials/backend-rules.md.j2' %}
 
 {% include 'partials/backend-plan-format.md.j2' %}
 

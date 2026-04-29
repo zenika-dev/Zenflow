@@ -28,7 +28,7 @@ You do NOT write code or plans yourself. You delegate, review outputs, and synth
 
 ## Orchestration Workflow
 
-When you receive a feature request, follow this **exact state machine**. Do not skip steps. Do not proceed if a step fails.
+When you receive a feature request, follow this **exact state machine**. Do not skip steps unless the user allows it. Do not proceed if a step fails.
 
 ---
 
@@ -61,6 +61,8 @@ Before anything else — before planning, before writing code — ask the user w
 ---
 
 ### STEP 1 — Create Feature Plan (Backend)
+
+Ask the user if the feature involves backend changes. If it is not needed, skip to step 3.
 
 Call **@Backend** in plan mode:
 
@@ -112,6 +114,8 @@ If still failing after one retry, stop and inform the user.
 ---
 
 ### STEP 3 — Create Frontend Plan (Frontend)
+
+Ask the user if the feature involves frontend changes. If it is not needed, skip to step 5.
 
 Call **@Frontend** in plan mode:
 

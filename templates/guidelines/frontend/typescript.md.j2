@@ -1,0 +1,58 @@
+# Frontend Architecture Guidelines (TypeScript)
+
+Purpose: frontend single source of truth for architecture, implementation checklist, and frontend handover format.
+
+## Stack Profile
+
+- Language: TypeScript
+
+## Project Structure Expectations
+
+- Keep API calls in service/client modules, not in UI logic.
+- Keep shared utilities and type definitions organized by project conventions.
+
+## Frontend Conventions
+
+- Type all public interfaces and external data contracts.
+- Use explicit loading, error, and success states.
+- Follow existing project structure and naming conventions.
+- Follow existing styling approach; do not introduce alternatives without approval.
+- Use CSS variables for design tokens (colors, spacing, radius, typography, z-index) instead of hardcoded values in component styles.
+- Do not include API keys, tokens, or secrets in frontend source.
+- Do not render unsafe HTML without sanitization.
+- Handle user-provided content safely.
+- Do not log sensitive data.
+
+## Accessibility Rules
+
+- Inputs must have labels or equivalent accessible naming.
+- Interactive controls must have meaningful accessible names.
+- Error messaging must be perceivable and announced where needed.
+- Color must not be the only state indicator.
+
+## Styling Token Rules (CSS Variables)
+
+- Define shared tokens in a global stylesheet scope (for example, `:root`).
+- Prefer semantic token names (for example, `--color-surface`, `--color-text-primary`) over raw palette names.
+- Keep component styles consuming tokens, not redefining them.
+- For theming, override existing tokens by theme scope instead of creating parallel style systems.
+- Avoid hardcoded hex/rgb values in component-level styles unless there is a documented exception.
+
+## Testing Strategy
+
+- Modules and integration points should have test coverage.
+- Mock API calls where appropriate.
+- Test loading, error, and success states.
+
+## Required Workflow Contract (Frontend)
+
+Use this file as the source of truth for:
+- frontend plan format
+- frontend implementation checklist
+- frontend handover format
+
+{% include 'partials/frontend-plan-format.md.j2' %}
+
+{% include 'partials/frontend-checklist.md.j2' %}
+
+{% include 'partials/frontend-handover.md.j2' %}

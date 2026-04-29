@@ -1,63 +1,20 @@
-# Frontend Architecture Guidelines (Next.js App Router)
+{% include 'guidelines/frontend/typescript.md.j2' %}
 
-Purpose: frontend single source of truth for architecture, implementation checklist, and frontend handover format.
-
-## Stack Profile
+## Framework: Next.js (App Router)
 
 - Framework: Next.js (App Router)
-- Language: TypeScript
 - Rendering: server and client components according to feature needs
 
-## Project Structure Expectations
+## Project Structure Expectations (Next.js)
 
 - Keep route segments under `app/` following project conventions.
 - Keep data fetching strategy explicit (server fetch, route handlers, or client calls).
 - Keep reusable UI in shared component directories.
 
-## Frontend Conventions
+## Next.js Conventions
 
 - Choose server vs client components intentionally and document the reason.
-- Keep API/network access in dedicated modules when possible.
-- Define loading and error boundaries where user experience requires them.
-- Follow existing styling and design system conventions.
-- Use CSS variables for design tokens (colors, spacing, radius, typography, z-index) instead of hardcoded values in component styles.
 - Separate route handlers and page logic where appropriate.
 - Keep caching and revalidation behavior explicit and appropriate.
-- Do not include API keys, tokens, or secrets in frontend source.
-- Do not render unsafe HTML without sanitization.
-- Handle user-provided content safely.
-- Do not log sensitive data.
-
-## Accessibility Rules
-
-- Inputs must have labels or equivalent accessible naming.
-- Interactive controls must have meaningful accessible names.
-- Error messaging must be perceivable and announced where needed.
-- Color must not be the only state indicator.
-
-## Styling Token Rules (CSS Variables)
-
-- Define shared tokens in a global stylesheet scope (for example, `:root`).
-- Prefer semantic token names (for example, `--color-surface`, `--color-text-primary`) over raw palette names.
-- Keep component styles consuming tokens, not redefining them.
-- For theming, override existing tokens by theme scope instead of creating parallel style systems.
-- Avoid hardcoded hex/rgb values in component-level styles unless there is a documented exception.
-
-## Testing Strategy
-
-- Components and integration points should have test coverage.
-- Mock API calls where appropriate.
-- Test loading, error, and success states.
-
-## Required Workflow Contract (Frontend)
-
-Use this file as the source of truth for:
-- frontend plan format
-- frontend implementation checklist
-- frontend handover format
-
-{% include 'partials/frontend-plan-format.md.j2' %}
-
-{% include 'partials/frontend-checklist.md.j2' %}
-
-{% include 'partials/frontend-handover.md.j2' %}
+- Define loading and error boundaries where user experience requires them.
+- Follow project conventions for API configuration (no hardcoded base URLs where disallowed).

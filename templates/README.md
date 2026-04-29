@@ -31,7 +31,7 @@ The more explicit these files are, the more consistently all tools can follow yo
 
 These are the files to be edited with the architectural guidelines your team agrees on.
 
-If there are extra languages or stacks to be configured, the initialisation functions `choose_backend_stack` and `choose_frontend_stack` in `cli.py` will have to be extended as well.
+To configure additional languages or frameworks, similar files to the existing ones have to be added to `guidelines` folder, and the new options and paths updated in the constants in `src/zenflow/stack.py` for the initialisation tool to work.
 
 3. Instructions
 

@@ -7,27 +7,91 @@ import glob
 import os
 import shutil
 import sys
+from dataclasses import dataclass
 
 from zenflow.deployment import (
     deploy_agents,
     deploy_guidelines_to_github,
     deploy_guidelines_to_skills,
 )
+from zenflow.stack import BACKEND, FRONTEND
+
+# ---------------------------------------------------------------------------
+# Data classes
+# ---------------------------------------------------------------------------
 
 
-def get_dirs(repo_root: str) -> tuple[str, str, str]:
+@dataclass(frozen=True)
+class SourceDirs:
+    """Key source directories derived from the repository root.
+
+    Attributes:
+        agents: Path to the agents templates directory.
+        instructions: Path to the instructions templates directory.
+        guidelines: Path to the guidelines templates directory.
+    """
+
+    agents: str
+    instructions: str
+    guidelines: str
+
+
+@dataclass(frozen=True)
+class ToolSelection:
+    """Which AI tools the user wants to set up.
+
+    Attributes:
+        copilot: Whether to deploy GitHub Copilot (VS Code) setup.
+        opencode: Whether to deploy OpenCode setup.
+        claude: Whether to deploy Claude Code setup.
+    """
+
+    copilot: bool
+    opencode: bool
+    claude: bool
+
+    def any_selected(self) -> bool:
+        """Return True if at least one tool is selected."""
+        return any((self.copilot, self.opencode, self.claude))
+
+
+@dataclass(frozen=True)
+class GuidelineSelection:
+    """User's guideline file choices.
+
+    Attributes:
+        backend_arch_file: Arch template filename for backend, or empty string.
+        backend_doc_file: Doc template filename for backend, or empty string.
+        frontend_arch_file: Arch template filename for frontend, or empty string.
+        frontend_doc_file: Doc template filename for frontend, or empty string.
+        include_conventions: Whether to include git conventions template.
+    """
+
+    backend_arch_file: str
+    backend_doc_file: str
+    frontend_arch_file: str
+    frontend_doc_file: str
+    include_conventions: bool
+
+
+# ---------------------------------------------------------------------------
+# Directory helpers
+# ---------------------------------------------------------------------------
+
+
+def get_dirs(repo_root: str) -> SourceDirs:
     """Return key source directories derived from repo_root.
 
     Args:
         repo_root: Repository root path.
 
     Returns:
-        Tuple of (agents_src_dir, instructions_src_dir, guidelines_src_dir).
+        SourceDirs with agents, instructions, and guidelines paths.
     """
-    return (
-        os.path.join(repo_root, "templates", "agents"),
-        os.path.join(repo_root, "templates", "instructions"),
-        os.path.join(repo_root, "templates", "guidelines"),
+    return SourceDirs(
+        agents=os.path.join(repo_root, "templates", "agents"),
+        instructions=os.path.join(repo_root, "templates", "instructions"),
+        guidelines=os.path.join(repo_root, "templates", "guidelines"),
     )
 
 
@@ -43,97 +107,255 @@ def validate_dirs(*dirs: str) -> None:
             sys.exit(1)
 
 
-def _choose_stack(label: str, options: dict[str, tuple[str, str]]) -> tuple[str, str]:
+# ---------------------------------------------------------------------------
+# Stack selection
+# ---------------------------------------------------------------------------
+
+
+def _choose_stack(label: str, options: list[tuple[str, str, str]]) -> tuple[str, str, str]:
     """Prompt user to choose a stack from a numbered list.
 
     Args:
         label: Human-readable name for the stack type (e.g. 'backend').
-        options: Mapping of choice key to (arch_filename, doc_filename).
+        options: List of (label, arch_filename, doc_filename) entries.
 
     Returns:
-        Tuple of (arch_filename, doc_filename) — doc_filename may be empty string.
+        The chosen (label, arch_filename, doc_filename) tuple.
     """
     print()
-    print(f"Choose {label} stack:")
-    for key, (arch, _) in options.items():
-        print(f"  {key}) {arch.removesuffix('.md.j2')}")
+    print(f"Choose {label}:")
+    for i, (name, _, _) in enumerate(options, start=1):
+        print(f"  {i}) {name}")
     choice = input(f"Enter choice [1-{len(options)}]: ").strip()
-    if choice not in options:
+    if not choice.isdigit() or not 1 <= int(choice) <= len(options):
         print(f"Error: invalid {label} choice '{choice}'.", file=sys.stderr)
         sys.exit(1)
-    return options[choice]
+    return options[int(choice) - 1]
 
 
-def choose_backend_stack() -> tuple[str, str]:
-    """Prompt user to choose backend language then framework.
+def _choose_language_then_framework(
+    domain: str,
+    stacks: dict[str, list[tuple[str, str, str]]],
+) -> tuple[str, str]:
+    """Prompt user to choose a language then a framework.
+
+    Args:
+        domain: Human-readable domain name (e.g. 'backend').
+        stacks: Dict of language label to list of (label, arch_file, doc_file) framework entries.
 
     Returns:
-        Tuple of (arch_filename, doc_filename) — doc_filename may be empty string.
+        Tuple of (arch_filename, doc_filename).
     """
-    language = _choose_stack(
-        "backend",
-        {
-            "1": ("python", ""),
-            "2": ("java", ""),
-            "3": ("golang", ""),
-        },
-    )[0]
+    languages = [(lang, lang, "") for lang in stacks]
+    _, language, _ = _choose_stack(f"{domain} language", languages)
+    _, arch_file, doc_file = _choose_stack(f"{domain} framework", stacks[language])
+    return arch_file, doc_file
 
-    frameworks: dict[str, dict[str, tuple[str, str]]] = {
-        "python": {
-            "1": ("python.md.j2", ""),
-            "2": ("python-fastapi.md.j2", ""),
-        },
-        "java": {
-            "1": ("java.md.j2", ""),
-            "2": ("java-spring-boot.md.j2", "java-spring-boot.md.j2"),
-        },
-        "golang": {
-            "1": ("golang.md.j2", ""),
-            "2": ("golang-gin.md.j2", ""),
-        },
-    }
 
-    framework_labels: dict[str, dict[str, tuple[str, str]]] = {
-        "python": {
-            "1": ("None (plain Python)", ""),
-            "2": ("FastAPI", ""),
-        },
-        "java": {
-            "1": ("None (plain Java)", ""),
-            "2": ("Spring Boot", ""),
-        },
-        "golang": {
-            "1": ("None (plain Go)", ""),
-            "2": ("Gin", ""),
-        },
-    }
+# ---------------------------------------------------------------------------
+# User prompts
+# ---------------------------------------------------------------------------
+
+
+def _prompt_tool_selection() -> ToolSelection:
+    """Prompt user to select which AI tools to set up.
+
+    Returns:
+        ToolSelection with the user's choices.
+    """
+    return ToolSelection(
+        copilot=input("Set up GitHub Copilot (VS Code)? [Y/N]: ").strip().lower() == "y",
+        opencode=input("Set up OpenCode? [Y/N]: ").strip().lower() == "y",
+        claude=input("Set up Claude Code? [Y/N]: ").strip().lower() == "y",
+    )
+
+
+def _prompt_guideline_selection() -> GuidelineSelection:
+    """Prompt user to select backend, frontend, and conventions guidelines.
+
+    Returns:
+        GuidelineSelection with the user's file choices.
+    """
+    include_backend = input("Include backend guidelines? [Y/N]: ").strip().lower() == "y"
+    include_frontend = input("Include frontend guidelines? [Y/N]: ").strip().lower() == "y"
+
+    backend_arch_file, backend_doc_file = (
+        _choose_language_then_framework("backend", BACKEND) if include_backend else ("", "")
+    )
+    frontend_arch_file, frontend_doc_file = (
+        _choose_language_then_framework("frontend", FRONTEND) if include_frontend else ("", "")
+    )
 
     print()
-    print(f"Choose {language} framework:")
-    for key, (label, _) in framework_labels[language].items():
-        print(f"  {key}) {label}")
-    options = frameworks[language]
-    choice = input(f"Enter choice [1-{len(options)}]: ").strip()
-    if choice not in options:
-        print(f"Error: invalid framework choice '{choice}'.", file=sys.stderr)
-        sys.exit(1)
-    return options[choice]
+    include_conventions = input("Include git conventions template? [Y/N]: ").strip().lower() != "n"
 
-
-def choose_frontend_stack() -> tuple[str, str]:
-    """Prompt user to choose frontend stack.
-
-    Returns:
-        Tuple of (arch_filename, doc_filename) — doc_filename may be empty string.
-    """
-    return _choose_stack(
-        "frontend",
-        {
-            "1": ("react-typescript.md.j2", "react-typescript.md.j2"),
-            "2": ("nextjs-app-router.md.j2", ""),
-        },
+    return GuidelineSelection(
+        backend_arch_file=backend_arch_file,
+        backend_doc_file=backend_doc_file,
+        frontend_arch_file=frontend_arch_file,
+        frontend_doc_file=frontend_doc_file,
+        include_conventions=include_conventions,
     )
+
+
+def _print_plan(target_path: str, tools: ToolSelection) -> None:
+    """Print a summary of what will be generated before deployment.
+
+    Args:
+        target_path: Resolved target directory path.
+        tools: Selected AI tools.
+    """
+    print("Zenflow initialization")
+    print(f"Target path: {target_path}")
+    print("Tools:")
+    if tools.copilot:
+        print("  ✓ GitHub Copilot (VS Code)")
+    if tools.opencode:
+        print("  ✓ OpenCode")
+    if tools.claude:
+        print("  ✓ Claude Code")
+    print()
+    print("The following will be generated:")
+    if tools.copilot:
+        print("  - .github/agents/        (agent definitions)")
+        print("  - .github/instructions/  (instruction files)")
+        print("  - .github/guidelines/    (architecture, review, and conventions)")
+    if tools.opencode:
+        print("  - .opencode/skills/      (OpenCode skill definitions + references/)")
+    if tools.claude:
+        print("  - .claude/skills/        (Claude Code skill definitions + references/)")
+    print()
+    input("Press any key to continue...")
+    print()
+
+
+# ---------------------------------------------------------------------------
+# Deployment
+# ---------------------------------------------------------------------------
+
+
+def _deploy_copilot(
+    target_path: str,
+    src: SourceDirs,
+    repo_root: str,
+    guidelines: GuidelineSelection,
+) -> None:
+    """Deploy GitHub Copilot (VS Code) setup to target_path.
+
+    Args:
+        target_path: Root target directory.
+        src: Source directory paths.
+        repo_root: Repository root path.
+        guidelines: User's guideline file choices.
+    """
+    print("Deploying GitHub Copilot (VS Code) setup...")
+    target_github_dir = os.path.join(target_path, ".github")
+    agents_dir = os.path.join(target_github_dir, "agents")
+    instructions_dir = os.path.join(target_github_dir, "instructions")
+    guidelines_dir = os.path.join(target_github_dir, "guidelines")
+    os.makedirs(agents_dir, exist_ok=True)
+    os.makedirs(instructions_dir, exist_ok=True)
+    os.makedirs(guidelines_dir, exist_ok=True)
+
+    print("Copying agents...")
+    deploy_agents(src.agents, agents_dir, repo_root, tool="copilot", skill_mode=False)
+
+    print("Copying instructions...")
+    for f in glob.glob(os.path.join(src.instructions, "*.md")):
+        shutil.copy(f, instructions_dir)
+
+    print("Copying selected guideline templates...")
+    deploy_guidelines_to_github(
+        guidelines_dir,
+        repo_root,
+        guidelines.backend_arch_file,
+        guidelines.frontend_arch_file,
+        guidelines.backend_doc_file,
+        guidelines.frontend_doc_file,
+        guidelines.include_conventions,
+    )
+
+
+def _deploy_skills_tool(
+    target_path: str,
+    tool_subdir: str,
+    tool: str,
+    src: SourceDirs,
+    repo_root: str,
+    guidelines: GuidelineSelection,
+) -> None:
+    """Deploy a skills-based tool (OpenCode or Claude Code) to target_path.
+
+    Args:
+        target_path: Root target directory.
+        tool_subdir: Subdirectory under target_path (e.g. '.opencode/skills').
+        tool: Tool identifier passed to deployment functions (e.g. 'opencode').
+        src: Source directory paths.
+        repo_root: Repository root path.
+        guidelines: User's guideline file choices.
+    """
+    skills_dir = os.path.join(target_path, tool_subdir)
+    deploy_agents(src.agents, skills_dir, repo_root, tool=tool, skill_mode=True)
+    deploy_guidelines_to_skills(
+        skills_dir,
+        repo_root,
+        guidelines.backend_arch_file,
+        guidelines.frontend_arch_file,
+        guidelines.backend_doc_file,
+        guidelines.frontend_doc_file,
+        guidelines.include_conventions,
+        tool=tool,
+    )
+    print(f"Copied skills to {skills_dir}")
+
+
+def _print_summary(
+    target_path: str,
+    tools: ToolSelection,
+    guidelines: GuidelineSelection,
+    include_backend: bool,
+    include_frontend: bool,
+) -> None:
+    """Print post-deployment summary.
+
+    Args:
+        target_path: Resolved target directory path.
+        tools: Selected AI tools.
+        guidelines: User's guideline file choices.
+        include_backend: Whether backend guidelines were included.
+        include_frontend: Whether frontend guidelines were included.
+    """
+    backend_doc_msg: str | None = (
+        "Included backend documentation template"
+        if guidelines.backend_doc_file
+        else ("Skipped backend documentation template" if include_backend else None)
+    )
+    frontend_doc_msg: str | None = (
+        "Included frontend documentation template"
+        if guidelines.frontend_doc_file
+        else ("Skipped frontend documentation template" if include_frontend else None)
+    )
+    conventions_msg = "Included conventions" if guidelines.include_conventions else "Skipped conventions"
+
+    print()
+    print("Initialization complete.")
+    print(f"Target: {target_path}")
+    if tools.copilot:
+        print("✓ GitHub Copilot (VS Code): .github/agents, instructions, and guidelines")
+    if tools.opencode:
+        print("✓ OpenCode: .opencode/skills/ (with references/)")
+    if tools.claude:
+        print("✓ Claude Code: .claude/skills/ (with references/)")
+    if backend_doc_msg:
+        print(f"- {backend_doc_msg}")
+    if frontend_doc_msg:
+        print(f"- {frontend_doc_msg}")
+    print(f"- {conventions_msg}")
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
 
 
 def main() -> None:
@@ -146,160 +368,38 @@ def main() -> None:
     parser.parse_args()
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    # src/zenflow/cli.py -> repo root is three levels up
     repo_root = os.path.dirname(os.path.dirname(script_dir))
 
-    agents_src_dir, instructions_src_dir, guidelines_src_dir = get_dirs(repo_root)
-    validate_dirs(agents_src_dir, instructions_src_dir, guidelines_src_dir)
+    src = get_dirs(repo_root)
+    validate_dirs(src.agents, src.instructions, src.guidelines)
 
-    # --- User configuration ---
     default_target_path = os.path.join(repo_root, "target")
     target_path_input = input(f"Target path [{default_target_path}]: ").strip()
     target_path = target_path_input or default_target_path
 
-    deploy_copilot = input("Set up GitHub Copilot (VS Code)? [Y/N]: ").strip().lower() == "y"
-    deploy_opencode = input("Set up OpenCode? [Y/N]: ").strip().lower() == "y"
-    deploy_claude = input("Set up Claude Code? [Y/N]: ").strip().lower() == "y"
-
-    if not any((deploy_copilot, deploy_opencode, deploy_claude)):
+    tools = _prompt_tool_selection()
+    if not tools.any_selected():
         print("Error: at least one tool must be selected.", file=sys.stderr)
         sys.exit(1)
 
-    print("Zenflow initialization")
-    print(f"Target path: {target_path}")
-    print("Tools:")
-    if deploy_copilot:
-        print("  ✓ GitHub Copilot (VS Code)")
-    if deploy_opencode:
-        print("  ✓ OpenCode")
-    if deploy_claude:
-        print("  ✓ Claude Code")
-    print()
-    print("The following will be generated:")
-    if deploy_copilot:
-        print("  - .github/agents/        (agent definitions)")
-        print("  - .github/instructions/  (instruction files)")
-        print("  - .github/guidelines/    (architecture, review, and conventions)")
-    if deploy_opencode:
-        print("  - .opencode/skills/      (OpenCode skill definitions + references/)")
-    if deploy_claude:
-        print("  - .claude/skills/        (Claude Code skill definitions + references/)")
-    print()
-    input("Press any key to continue...")
-    print()
+    _print_plan(target_path, tools)
 
-    include_backend = input("Include backend guidelines? [Y/N]: ").strip().lower() == "y"
-    include_frontend = input("Include frontend guidelines? [Y/N]: ").strip().lower() == "y"
-
-    backend_arch_file, backend_doc_file = choose_backend_stack() if include_backend else ("", "")
-    frontend_arch_file, frontend_doc_file = choose_frontend_stack() if include_frontend else ("", "")
-
-    print()
-    include_conventions = input("Include git conventions template? [Y/N]: ").strip().lower() != "n"
-    conventions_msg = "Included conventions" if include_conventions else "Skipped conventions"
-
-    backend_doc_msg = (
-        "Included backend documentation template"
-        if backend_doc_file
-        else ("Skipped backend documentation template" if include_backend else None)
-    )
-    frontend_doc_msg = (
-        "Included frontend documentation template"
-        if frontend_doc_file
-        else ("Skipped frontend documentation template" if include_frontend else None)
-    )
+    guidelines = _prompt_guideline_selection()
+    include_backend = bool(guidelines.backend_arch_file)
+    include_frontend = bool(guidelines.frontend_arch_file)
 
     print()
 
-    # --- Deploy GitHub Copilot ---
-    if deploy_copilot:
-        print("Deploying GitHub Copilot (VS Code) setup...")
-        target_github_dir = os.path.join(target_path, ".github")
-        target_agents_dir = os.path.join(target_github_dir, "agents")
-        target_instructions_dir = os.path.join(target_github_dir, "instructions")
-        target_guidelines_dir = os.path.join(target_github_dir, "guidelines")
-        os.makedirs(target_agents_dir, exist_ok=True)
-        os.makedirs(target_instructions_dir, exist_ok=True)
-        os.makedirs(target_guidelines_dir, exist_ok=True)
-
-        print("Copying agents...")
-        deploy_agents(
-            agents_src_dir,
-            target_agents_dir,
-            repo_root,
-            tool="copilot",
-            skill_mode=False,
-        )
-
-        print("Copying instructions...")
-        for f in glob.glob(os.path.join(instructions_src_dir, "*.md")):
-            shutil.copy(f, target_instructions_dir)
-
-        print("Copying selected guideline templates...")
-        deploy_guidelines_to_github(
-            target_guidelines_dir,
-            repo_root,
-            backend_arch_file,
-            frontend_arch_file,
-            backend_doc_file,
-            frontend_doc_file,
-            include_conventions,
-        )
-
-    # --- Deploy OpenCode ---
-    if deploy_opencode:
+    if tools.copilot:
+        _deploy_copilot(target_path, src, repo_root, guidelines)
+    if tools.opencode:
         print("Deploying OpenCode setup...")
-        target_opencode_dir = os.path.join(target_path, ".opencode", "skills")
-        deploy_agents(
-            agents_src_dir,
-            target_opencode_dir,
-            repo_root,
-            tool="opencode",
-            skill_mode=True,
-        )
-        deploy_guidelines_to_skills(
-            target_opencode_dir,
-            repo_root,
-            backend_arch_file,
-            frontend_arch_file,
-            backend_doc_file,
-            frontend_doc_file,
-            include_conventions,
-            tool="opencode",
-        )
-        print(f"Copied skills to {target_opencode_dir}")
-
-    # --- Deploy Claude Code ---
-    if deploy_claude:
+        _deploy_skills_tool(target_path, ".opencode/skills", "opencode", src, repo_root, guidelines)
+    if tools.claude:
         print("Deploying Claude Code setup...")
-        target_claude_dir = os.path.join(target_path, ".claude", "skills")
-        deploy_agents(agents_src_dir, target_claude_dir, repo_root, tool="claude", skill_mode=True)
-        deploy_guidelines_to_skills(
-            target_claude_dir,
-            repo_root,
-            backend_arch_file,
-            frontend_arch_file,
-            backend_doc_file,
-            frontend_doc_file,
-            include_conventions,
-            tool="claude",
-        )
-        print(f"Copied skills to {target_claude_dir}")
+        _deploy_skills_tool(target_path, ".claude/skills", "claude", src, repo_root, guidelines)
 
-    print()
-    print("Initialization complete.")
-    print(f"Target: {target_path}")
-    if deploy_copilot:
-        print("✓ GitHub Copilot (VS Code): .github/agents, instructions, and guidelines")
-    if deploy_opencode:
-        print("✓ OpenCode: .opencode/skills/ (with references/)")
-    if deploy_claude:
-        print("✓ Claude Code: .claude/skills/ (with references/)")
-    if backend_doc_msg:
-        print(f"- {backend_doc_msg}")
-    if frontend_doc_msg:
-        print(f"- {frontend_doc_msg}")
-    print(f"- {conventions_msg}")
+    _print_summary(target_path, tools, guidelines, include_backend, include_frontend)
 
 
 if __name__ == "__main__":

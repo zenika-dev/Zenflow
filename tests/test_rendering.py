@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 from jinja2 import Environment
 
-from zenflow.guidelines import guidelines_context
-from zenflow.rendering import make_env, render_template
+from zenflow.core.guidelines import guidelines_context
+from zenflow.core.rendering import make_env, render_template
 
 # ---------------------------------------------------------------------------
 # Helpers

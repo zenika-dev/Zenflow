@@ -14,7 +14,7 @@ dev = [
 ]
 
 [project.scripts]
-zenflow-init = "zenflow.cli:main"
+zenflow-init = "zenflow.cli.main:main"
 
 [build-system]
 requires = ["hatchling"]

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from zenflow.stack import BACKEND, FRONTEND
+from zenflow.core.stack import BACKEND, FRONTEND
 
 
 @pytest.mark.parametrize("stacks", [BACKEND, FRONTEND], ids=["backend", "frontend"])

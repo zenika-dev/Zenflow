@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from zenflow.guidelines import guidelines_context
+from zenflow.core.guidelines import guidelines_context
 
 EXPECTED_KEYS = {
     "backend_arch",

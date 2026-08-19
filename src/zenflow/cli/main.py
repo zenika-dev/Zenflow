@@ -9,6 +9,7 @@ import sys
 from zenflow.core.errors import ZenflowError
 from zenflow.core.models import DeploymentResult, GuidelineSelection, ToolSelection
 from zenflow.core.service import get_dirs, init_project, validate_dirs
+from zenflow.core.service import repo_root as get_repo_root
 from zenflow.core.stack import BACKEND, FRONTEND
 
 # ---------------------------------------------------------------------------
@@ -182,8 +183,7 @@ def main() -> None:
     )
     parser.parse_args()
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(script_dir)))
+    repo_root = get_repo_root()
 
     src = get_dirs(repo_root)
     try:

@@ -5,6 +5,7 @@ from __future__ import annotations
 import glob
 import os
 import shutil
+from pathlib import Path
 
 from zenflow.core.deployment import (
     deploy_agents,
@@ -13,6 +14,15 @@ from zenflow.core.deployment import (
 )
 from zenflow.core.errors import ZenflowError
 from zenflow.core.models import DeploymentResult, GuidelineSelection, SourceDirs, ToolSelection
+
+
+def repo_root() -> str:
+    """Return the Zenflow repository root, derived from this module's install location.
+
+    Returns:
+        Absolute path to the repository root (parent of src/).
+    """
+    return str(Path(__file__).resolve().parents[3])
 
 
 def get_dirs(repo_root: str) -> SourceDirs:

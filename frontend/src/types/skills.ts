@@ -6,6 +6,8 @@ export type SkillMode = "none" | "skill" | "custom";
 export interface Skill {
   id: string;
   label: string;
+  /** True when this skill has no corresponding backend agent yet — locked to "None". */
+  disabled?: boolean;
 }
 
 export interface SkillCategory {

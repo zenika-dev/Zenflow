@@ -9,7 +9,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from zenflow.routers import init, stacks
+from zenflow.routers import archive, init, stacks
 
 app = FastAPI(
     title="Zenflow API",
@@ -25,6 +25,7 @@ app.add_middleware(
 )
 
 app.include_router(init.router, tags=["init"])
+app.include_router(archive.router, tags=["archive"])
 app.include_router(stacks.router, tags=["stacks"])
 
 

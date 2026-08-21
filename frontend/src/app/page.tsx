@@ -37,7 +37,7 @@ export default function Home() {
     setBackendArchFile("");
     setFrontendArchFile("");
     setExpandedCategory(DEFAULT_EXPANDED_CATEGORY);
-    setSkillSelections(DEFAULT_SKILL_SELECTIONS);
+    setSkillSelections({});
   }
 
   function handleToggleExpand(categoryId: string) {

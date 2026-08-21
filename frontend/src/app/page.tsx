@@ -4,8 +4,18 @@ import { useEffect, useState } from "react";
 import { getStacks } from "@/api/stacks";
 import { AssistantPicker } from "@/components/AssistantPicker";
 import { LanguageStackPicker } from "@/components/LanguageStackPicker";
+import { SkillCategoryAccordion } from "@/components/SkillCategoryAccordion";
 import { Button } from "@/components/ui/Button";
+import { SKILL_CATEGORIES } from "@/data/skillCategories";
+import type { SkillMode } from "@/types/skills";
 import type { AssistantId, GuidelineSelection, StackCatalog, ToolSelection } from "@/types/zenflow";
+
+const DEFAULT_EXPANDED_CATEGORY = SKILL_CATEGORIES[0].id;
+const DEFAULT_SKILL_SELECTIONS: Record<string, SkillMode> = {
+  "prd-generation": "skill",
+  frontend: "skill",
+  "code-review": "skill",
+};
 
 export default function Home() {
   const [catalog, setCatalog] = useState<StackCatalog | null>(null);
@@ -13,6 +23,8 @@ export default function Home() {
   const [assistant, setAssistant] = useState<AssistantId>("claude");
   const [backendArchFile, setBackendArchFile] = useState("");
   const [frontendArchFile, setFrontendArchFile] = useState("");
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(DEFAULT_EXPANDED_CATEGORY);
+  const [skillSelections, setSkillSelections] = useState<Record<string, SkillMode>>(DEFAULT_SKILL_SELECTIONS);
 
   useEffect(() => {
     getStacks()
@@ -24,6 +36,16 @@ export default function Home() {
     setAssistant("claude");
     setBackendArchFile("");
     setFrontendArchFile("");
+    setExpandedCategory(DEFAULT_EXPANDED_CATEGORY);
+    setSkillSelections(DEFAULT_SKILL_SELECTIONS);
+  }
+
+  function handleToggleExpand(categoryId: string) {
+    setExpandedCategory((prev) => (prev === categoryId ? null : categoryId));
+  }
+
+  function handleSetSkillMode(skillId: string, mode: SkillMode) {
+    setSkillSelections((prev) => ({ ...prev, [skillId]: mode }));
   }
 
   function handleGenerate() {
@@ -40,7 +62,8 @@ export default function Home() {
       include_conventions: true,
     };
     // TODO: wire up to POST /init once the confirm modal (and its target_path input) is built.
-    console.log("Generate (stub)", { tools, guidelines });
+    // skillSelections has no backend equivalent yet — the API deploys a fixed agent set per tool.
+    console.log("Generate (stub)", { tools, guidelines, skillSelections });
   }
 
   return (
@@ -73,6 +96,16 @@ export default function Home() {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mx-auto max-w-[1120px] px-6 pt-4 pb-10">
+        <SkillCategoryAccordion
+          categories={SKILL_CATEGORIES}
+          expandedCategory={expandedCategory}
+          selections={skillSelections}
+          onToggleExpand={handleToggleExpand}
+          onSetMode={handleSetSkillMode}
+        />
       </div>
 
       <div className="border-t-[1.5px] border-[#e9dde3]">

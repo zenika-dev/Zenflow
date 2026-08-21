@@ -57,7 +57,7 @@ export default function Home() {
           it reads on day one.
         </p>
 
-        <div className="mt-7 grid grid-cols-1 gap-6 rounded-[24px] bg-white p-6 shadow-[0_20px_40px_-20px_rgba(120,40,80,0.25)] sm:grid-cols-2">
+        <div className="mt-7 grid grid-cols-2 gap-6 rounded-[24px] bg-white p-6 shadow-[0_20px_40px_-20px_rgba(120,40,80,0.25)]">
           <AssistantPicker selected={assistant} onSelect={setAssistant} />
           {catalog ? (
             <LanguageStackPicker

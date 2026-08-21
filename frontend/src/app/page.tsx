@@ -11,9 +11,8 @@ import { SKILL_CATEGORIES } from "@/data/skillCategories";
 import type { SkillMode } from "@/types/skills";
 import type { AssistantId, GuidelineSelection, StackCatalog, ToolSelection } from "@/types/zenflow";
 
-const DEFAULT_EXPANDED_CATEGORY = SKILL_CATEGORIES[0].id;
+const DEFAULT_EXPANDED_CATEGORY = (SKILL_CATEGORIES.find((c) => !c.disabled) ?? SKILL_CATEGORIES[0]).id;
 const DEFAULT_SKILL_SELECTIONS: Record<string, SkillMode> = {
-  "prd-generation": "skill",
   frontend: "skill",
   "code-review": "skill",
 };

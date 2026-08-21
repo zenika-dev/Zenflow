@@ -6,6 +6,7 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
     title: "Product and Design",
     color: "#c81c5c",
     tint: "#fbe7ee",
+    disabled: true, // no backend support yet
     skills: [
       { id: "prd-generation", label: "PRD generation" },
       { id: "low-fi-design", label: "Low-fi design" },

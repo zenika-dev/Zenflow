@@ -11,13 +11,21 @@ interface CategoryCardProps {
 
 export function CategoryCard({ category, expanded, selections, onToggleExpand, onSetMode }: CategoryCardProps) {
   const selectedCount = category.skills.filter((skill) => (selections[skill.id] ?? "none") !== "none").length;
+  const disabled = category.disabled ?? false;
 
   return (
-    <div className="overflow-hidden rounded-2xl bg-white shadow-[0_12px_28px_-18px_rgba(60,20,50,0.25)]">
+    <div
+      className={`overflow-hidden rounded-2xl bg-white shadow-[0_12px_28px_-18px_rgba(60,20,50,0.25)] ${
+        disabled ? "opacity-50" : ""
+      }`}
+    >
       <button
         type="button"
         onClick={onToggleExpand}
-        className="flex w-full cursor-pointer items-center gap-3 px-5 py-4 text-left"
+        disabled={disabled}
+        className={`flex w-full items-center gap-3 px-5 py-4 text-left ${
+          disabled ? "cursor-not-allowed" : "cursor-pointer"
+        }`}
       >
         <div
           className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-[13px] font-bold"
@@ -25,16 +33,20 @@ export function CategoryCard({ category, expanded, selections, onToggleExpand, o
         >
           {category.title}
         </div>
-        <span className="text-xs font-extrabold text-[#8a8290]">{selectedCount} selected</span>
-        <span className="flex-1" />
-        <span
-          className="inline-block text-[#8a8290] transition-transform duration-150"
-          style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
-        >
-          ▾
+        <span className="text-xs font-extrabold text-[#8a8290]">
+          {disabled ? "Coming soon" : `${selectedCount} selected`}
         </span>
+        <span className="flex-1" />
+        {!disabled && (
+          <span
+            className="inline-block text-[#8a8290] transition-transform duration-150"
+            style={{ transform: expanded ? "rotate(180deg)" : "rotate(0deg)" }}
+          >
+            ▾
+          </span>
+        )}
       </button>
-      {expanded && (
+      {!disabled && expanded && (
         <div className="px-5 pb-5">
           <div
             className="grid gap-2 border-b-[1.5px] border-[#f0e6ec] px-1 pb-2 text-[11px] font-extrabold tracking-[0.08em] text-[#8a8290] uppercase"

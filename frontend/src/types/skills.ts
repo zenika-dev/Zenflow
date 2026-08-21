@@ -14,4 +14,6 @@ export interface SkillCategory {
   color: string;
   tint: string;
   skills: Skill[];
+  /** True when this category isn't backed by anything deployable yet — grayed out and non-interactive. */
+  disabled?: boolean;
 }

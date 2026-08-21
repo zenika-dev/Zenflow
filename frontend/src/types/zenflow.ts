@@ -26,3 +26,14 @@ export interface GuidelineSelection {
   frontend_doc_file: string;
   include_conventions: boolean;
 }
+
+export interface InitRequest {
+  target_path: string;
+  tools: ToolSelection;
+  guidelines?: GuidelineSelection;
+}
+
+export interface InitResponse {
+  target_path: string;
+  deployed: Record<string, string>;
+}

@@ -2,9 +2,10 @@ interface ButtonProps {
   children: React.ReactNode;
   onClick?: () => void;
   variant?: "primary" | "secondary";
+  disabled?: boolean;
 }
 
-export function Button({ children, onClick, variant = "secondary" }: ButtonProps) {
+export function Button({ children, onClick, variant = "secondary", disabled = false }: ButtonProps) {
   const variantClasses =
     variant === "primary"
       ? "border-none bg-[#c81c5c] text-white"
@@ -14,7 +15,10 @@ export function Button({ children, onClick, variant = "secondary" }: ButtonProps
     <button
       type="button"
       onClick={onClick}
-      className={`cursor-pointer rounded-full px-7 py-3.5 text-[15px] font-bold ${variantClasses}`}
+      disabled={disabled}
+      className={`rounded-full px-7 py-3.5 text-[15px] font-bold disabled:cursor-not-allowed disabled:opacity-50 ${
+        disabled ? "" : "cursor-pointer"
+      } ${variantClasses}`}
     >
       {children}
     </button>

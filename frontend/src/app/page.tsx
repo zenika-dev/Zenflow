@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getStacks } from "@/api/stacks";
 import { AssistantPicker } from "@/components/AssistantPicker";
+import { GenerateModal } from "@/components/GenerateModal";
 import { LanguageStackPicker } from "@/components/LanguageStackPicker";
 import { SkillCategoryAccordion } from "@/components/SkillCategoryAccordion";
 import { Button } from "@/components/ui/Button";
@@ -25,6 +26,20 @@ export default function Home() {
   const [frontendArchFile, setFrontendArchFile] = useState("");
   const [expandedCategory, setExpandedCategory] = useState<string | null>(DEFAULT_EXPANDED_CATEGORY);
   const [skillSelections, setSkillSelections] = useState<Record<string, SkillMode>>(DEFAULT_SKILL_SELECTIONS);
+  const [generateModalOpen, setGenerateModalOpen] = useState(false);
+
+  const tools: ToolSelection = {
+    claude: assistant === "claude",
+    copilot: assistant === "copilot",
+    opencode: assistant === "opencode",
+  };
+  const guidelines: GuidelineSelection = {
+    backend_arch_file: backendArchFile,
+    backend_doc_file: "",
+    frontend_arch_file: frontendArchFile,
+    frontend_doc_file: "",
+    include_conventions: true,
+  };
 
   useEffect(() => {
     getStacks()
@@ -46,24 +61,6 @@ export default function Home() {
 
   function handleSetSkillMode(skillId: string, mode: SkillMode) {
     setSkillSelections((prev) => ({ ...prev, [skillId]: mode }));
-  }
-
-  function handleGenerate() {
-    const tools: ToolSelection = {
-      claude: assistant === "claude",
-      copilot: assistant === "copilot",
-      opencode: assistant === "opencode",
-    };
-    const guidelines: GuidelineSelection = {
-      backend_arch_file: backendArchFile,
-      backend_doc_file: "",
-      frontend_arch_file: frontendArchFile,
-      frontend_doc_file: "",
-      include_conventions: true,
-    };
-    // TODO: wire up to POST /init once the confirm modal (and its target_path input) is built.
-    // skillSelections has no backend equivalent yet — the API deploys a fixed agent set per tool.
-    console.log("Generate (stub)", { tools, guidelines, skillSelections });
   }
 
   return (
@@ -113,11 +110,18 @@ export default function Home() {
           <Button variant="secondary" onClick={handleReset}>
             Reset
           </Button>
-          <Button variant="primary" onClick={handleGenerate}>
+          <Button variant="primary" onClick={() => setGenerateModalOpen(true)}>
             Generate
           </Button>
         </div>
       </div>
+
+      <GenerateModal
+        open={generateModalOpen}
+        tools={tools}
+        guidelines={guidelines}
+        onClose={() => setGenerateModalOpen(false)}
+      />
     </div>
   );
 }

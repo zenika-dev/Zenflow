@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from zenflow.rendering import make_env
+from zenflow.core.rendering import make_env
 
 
 @pytest.fixture(scope="session")

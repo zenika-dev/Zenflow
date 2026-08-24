@@ -6,13 +6,12 @@ from unittest.mock import patch
 
 import pytest
 
-from zenflow.cli import (
-    GuidelineSelection,
-    ToolSelection,
+from zenflow.cli.main import (
     _choose_language_then_framework,
     _choose_stack,
 )
-from zenflow.stack import BACKEND, FRONTEND
+from zenflow.core.models import GuidelineSelection, ToolSelection
+from zenflow.core.stack import BACKEND, FRONTEND
 
 OPTIONS: list[tuple[str, str, str]] = [
     ("Option A", "a.md.j2", ""),

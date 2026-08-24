@@ -5,8 +5,8 @@ from __future__ import annotations
 import glob
 import os
 
-from zenflow.guidelines import guidelines_context
-from zenflow.rendering import assemble_agent, assemble_guideline, make_env
+from zenflow.core.guidelines import guidelines_context
+from zenflow.core.rendering import assemble_agent, assemble_guideline, make_env
 
 
 def deploy_agents(

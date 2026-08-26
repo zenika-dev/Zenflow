@@ -6,7 +6,7 @@ OpenAPI schema at /openapi.json — all provided automatically by FastAPI.
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from zenflow.routers import archive, init, stacks
@@ -23,6 +23,25 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Paths that serve FastAPI's built-in HTML docs, which load Swagger UI/ReDoc
+# assets from a CDN with inline scripts — a locked-down CSP would break them.
+_DOCS_PATHS = {"/docs", "/redoc", "/openapi.json"}
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    """Attach standard security headers to every response."""
+    response = await call_next(request)
+    response.headers["Strict-Transport-Security"] = "max-age=63072000; includeSubDomains; preload"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
+    if request.url.path not in _DOCS_PATHS:
+        response.headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'none'"
+    return response
+
 
 app.include_router(init.router, tags=["init"])
 app.include_router(archive.router, tags=["archive"])

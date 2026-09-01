@@ -1,0 +1,7 @@
+project_id = "your-gcp-project-id"
+region     = "us-central1"
+
+# Fill these in after building/pushing each image (see README.md) — leave
+# blank for the very first apply, which only creates the Artifact Registry.
+# backend_image  = "us-central1-docker.pkg.dev/your-gcp-project-id/zenflow/backend:v1"
+# frontend_image = "us-central1-docker.pkg.dev/your-gcp-project-id/zenflow/frontend:v1"

@@ -19,7 +19,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    # TODO: narrow to the deployed frontend origin once its GCP URL is known.
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )

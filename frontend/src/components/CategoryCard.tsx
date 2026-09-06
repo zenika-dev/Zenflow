@@ -54,8 +54,8 @@ export function CategoryCard({ category, expanded, selections, onToggleExpand, o
           >
             <div>Agent</div>
             <div className="text-center">None</div>
-            <div className="text-center">Skill</div>
-            <div className="text-center leading-tight">Custom agent</div>
+            <div className="text-center">SKILL.md file</div>
+            <div className="text-center leading-tight">Custom agent file</div>
           </div>
           {category.skills.map((skill) => (
             <SkillRow
